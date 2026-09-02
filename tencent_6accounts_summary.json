@@ -1,0 +1,110 @@
+[
+  {
+    "id": "83676427",
+    "name": "广州登鸣信息科技有限公司",
+    "operator": "利欧",
+    "health": "建议调整",
+    "tags": [
+      "灵儿-9.9-PF直投小程序问答-有留资-wtt"
+    ],
+    "balance": 33919.94,
+    "spend": 1532.11,
+    "cpa": 170.23,
+    "impressions": 42235,
+    "clicks": 488,
+    "ctr": 1.16,
+    "cpc": 3.14,
+    "conversions": 9,
+    "cvr": 1.84
+  },
+  {
+    "id": "83676438",
+    "name": "广州登鸣信息科技有限公司",
+    "operator": "利欧",
+    "health": "持续关注",
+    "tags": [
+      "灵儿-9.9-直投H5纯问答+首页分流-wtt"
+    ],
+    "balance": 12783.33,
+    "spend": 0.78,
+    "cpa": 0,
+    "impressions": 15,
+    "clicks": 0,
+    "ctr": 0,
+    "cpc": 0,
+    "conversions": 0,
+    "cvr": 0
+  },
+  {
+    "id": "85489979",
+    "name": "广州登鸣信息科技有限公司",
+    "operator": "盟聚",
+    "health": "持续关注",
+    "tags": [
+      "灵儿-9.9-小程序问答有无首页分流-wtt"
+    ],
+    "balance": 12101.68,
+    "spend": 2388.45,
+    "cpa": 199.04,
+    "impressions": 60559,
+    "clicks": 538,
+    "ctr": 0.89,
+    "cpc": 4.44,
+    "conversions": 12,
+    "cvr": 2.23
+  },
+  {
+    "id": "85489984",
+    "name": "广州登鸣信息科技有限公司",
+    "operator": "盟聚",
+    "health": "建议调整",
+    "tags": [
+      "灵儿-9.9-H5分流-排小程序-wtt"
+    ],
+    "balance": 19228.62,
+    "spend": 3643.65,
+    "cpa": 280.28,
+    "impressions": 64098,
+    "clicks": 1129,
+    "ctr": 1.76,
+    "cpc": 3.23,
+    "conversions": 13,
+    "cvr": 1.15
+  },
+  {
+    "id": "87101601",
+    "name": "广州登鸣信息科技有限公司",
+    "operator": "利欧",
+    "health": "建议调整",
+    "tags": [
+      "灵儿-9.9-H5-纯问答+首页-wtt"
+    ],
+    "balance": 22221.63,
+    "spend": 6928.54,
+    "cpa": 173.21,
+    "impressions": 181914,
+    "clicks": 3207,
+    "ctr": 1.76,
+    "cpc": 2.16,
+    "conversions": 40,
+    "cvr": 1.25
+  },
+  {
+    "id": "87101605",
+    "name": "广州登鸣信息科技有限公司",
+    "operator": "利欧",
+    "health": "急需调整",
+    "tags": [
+      "灵儿-9.9-AI落+PF-wtt"
+    ],
+    "balance": 9806.08,
+    "spend": 5335.94,
+    "cpa": 213.44,
+    "impressions": 143738,
+    "clicks": 1835,
+    "ctr": 1.28,
+    "cpc": 2.91,
+    "conversions": 25,
+    "cvr": 1.36
+  }
+]

@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>信息流投放工作台</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js" integrity="sha384-pPi0zxBAoDu6+JXW/C68UZLvBUUtU+7zonhif43rqj7pxsGyqyqzcian2Rj37Rss" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== 侧边栏 ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 2 4-6"/></svg>
+      </div>
+      <div>
+        <div class="bt">信息流投放工作台</div>
+        <div class="bs">投放优化 · 数据分析</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">工作台</div>
+      <a href="#/overview" data-view="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        今日待办
+      </a>
+      <a href="#/todo" data-view="todo" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        待办事项
+      </a>
+      <div class="nav-label">分析模块</div>
+      <a href="#/phone" data-view="phone">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>
+        手机型号数据分析
+      </a>
+      <a href="#/link-table" data-view="link-table">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 9h18M9 9v11"/></svg>
+        链路数据表_系统口径
+      </a>
+      <a href="#/weekly" data-view="weekly">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="1.5"/><path d="M8 2.5V6M16 2.5V6M3 9.5h18"/><path d="M7 14l3-3 3 2 4-4"/></svg>
+        分周数据分析
+      </a>
+      <a href="#/link-score" data-view="link-score">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 16l-4.9 2.6.9-5.5-4-3.9 5.5-.8z"/></svg>
+        链路画像_评分分析
+      </a>
+      <a href="#/material" data-view="material">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        素材分析
+      </a>
+      <a href="#/clue" data-view="clue">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        线索评分
+      </a>
+      <a href="#/clue-position" data-view="clue-position">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+        线索评分·版位分析
+      </a>
+      <a href="#/account-score" data-view="account-score">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        分账户评分分析
+      </a>
+      <a href="#/account-compare" data-view="account-compare">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 2 4-5"/><path d="M18 3v4M16 5h4"/></svg>
+        账户对比分析
+      </a>
+      <a href="#/weekly-archive" data-view="weekly-archive" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/><path d="M8 2h8"/></svg>
+        周报历史归档
+      </a>
+      <a href="#/weekly-report" data-view="weekly-report">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+        周报撰写
+      </a>
+      <div class="nav-label" style="display:none">腾讯广告</div>
+      <a href="#/tencent" data-view="tencent" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="10" r="2.5"/><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5"/><path d="M14 16c2.5 0 5 1.5 5 4"/></svg>
+        腾讯广告·多账号<span class="badge">6账号</span>
+      </a>
+      <div class="nav-label" style="display:none">设置</div>
+      <a href="#/data" data-view="data" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="2.6"/><path d="M4 5v6c0 1.4 3.6 2.6 8 2.6s8-1.2 8-2.6V5"/><path d="M4 11v6c0 1.4 3.6 2.6 8 2.6s8-1.2 8-2.6v-6"/></svg>
+        数据管理
+      </a>
+      <div class="nav-label">增强工具</div>
+      <a href="#/op-log" data-view="op-log">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+        操作日志<span class="enhanced-tag new">新</span>
+      </a>
+      <a href="#/ab-test" data-view="ab-test">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M9 7h6M9 11h6"/><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
+        A/B测试<span class="enhanced-tag new">新</span>
+      </a>
+      <a href="#/daily-report" data-view="daily-report">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+        日报生成<span class="enhanced-tag new">新</span>
+      </a>
+      <a href="#/data-quality" data-view="data-quality">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+        数据质量<span class="enhanced-tag new">新</span>
+      </a>
+      <a href="#/link-config" data-view="link-config">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        前后端关联<span class="enhanced-tag new">新</span>
+      </a>
+      <a href="#/name-dict" data-view="name-dict">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        命名字典<span class="enhanced-tag new">新</span>
+      </a>
+      <a href="#/cross-account" data-view="cross-account">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6m11-11h-6M7 12H1m15.5-6.5l-4.2 4.2m-4.6 4.6l-4.2 4.2m0-13l4.2 4.2m4.6 4.6l4.2 4.2"/></svg>
+        跨账户分析<span class="enhanced-tag new">新</span>
+      </a>
+      <a href="#/conv-delay" data-view="conv-delay">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        转化延迟<span class="enhanced-tag new">新</span>
+      </a>
+      <div class="nav-label">数据上传（Excel）</div>
+      <a href="#/excel-phone" data-view="excel-phone">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/><path d="M9.5 7h5M9.5 10.5h5M9.5 14h3"/></svg>
+        手机型号分析
+      </a>
+      <a href="#/excel-link" data-view="excel-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 9h18M9 9v11"/></svg>
+        链路数据表·系统口径
+      </a>
+      <a href="#/excel-weekly" data-view="excel-weekly">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="1.5"/><path d="M8 2.5V6M16 2.5V6M3 9.5h18"/><path d="M7 14l3-3 3 2 4-4"/></svg>
+        分周数据对比
+      </a>
+      <a href="#/excel-score" data-view="excel-score">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 16l-4.9 2.6.9-5.5-4-3.9 5.5-.8z"/></svg>
+        链路画像·评分
+      </a>
+      <a href="#/excel-material" data-view="excel-material">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        素材分析
+      </a>
+      <a href="#/excel-clue" data-view="excel-clue">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        线索评分
+      </a>
+      <a href="#/excel-clue-position" data-view="excel-clue-position">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+        线索评分·版位分析
+      </a>
+      <a href="#/excel-account-score" data-view="excel-account-score">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        分账户评分分析
+      </a>
+      <a href="#/excel-account-compare" data-view="excel-account-compare">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 2 4-5"/><path d="M18 3v4M16 5h4"/></svg>
+        账户对比分析
+      </a>
+      <a href="#/excel-weekly-archive" data-view="excel-weekly-archive" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/><path d="M8 2h8"/></svg>
+        周报历史归档
+      </a>
+      <a href="#/excel-weekly-report" data-view="excel-weekly-report" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+        周报撰写
+      </a>
+      <div class="nav-label" style="display:none">工作台</div>
+      <a href="#/overview" data-view="overview" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        数据总览
+      </a>
+      <div class="nav-label">设置</div>
+      <a href="#/data" data-view="data">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="2.6"/><path d="M4 5v6c0 1.4 3.6 2.6 8 2.6s8-1.2 8-2.6V5"/><path d="M4 11v6c0 1.4 3.6 2.6 8 2.6s8-1.2 8-2.6v-6"/></svg>
+        数据管理
+      </a>
+    </nav>
+    <div class="sidebar-foot"><span class="dot"></span>数据就绪 · 点击侧栏切换模块</div>
+  </aside>
+
+  <div class="main">
+    <!-- ===== 顶栏 ===== -->
+    <header class="topbar">
+      <button class="hamburger" id="hamburger" aria-label="菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <h1 id="pageTitle">数据总览</h1>
+      <span class="sub" id="pageSub">全链路投放核心指标</span>
+      <span class="spacer"></span>
+      <div class="filters">
+        <span class="data-tag" id="dataTag">示例数据</span>
+        <span class="data-timestamp" id="dataTs"><span class="dt-dot"></span>腾讯数据待同步</span>
+        <select id="quickUpload" style="padding:4px 8px;border:1px solid var(--border-2);border-radius:7px;font-size:11px;background:#fff;color:var(--ink-2);cursor:pointer;margin-left:6px">
+          <option value="">📥 上传数据…</option>
+          <option value="excel-phone">手机型号分析</option>
+          <option value="excel-link">链路数据表</option>
+          <option value="excel-weekly">分周数据对比</option>
+          <option value="excel-score">链路画像评分</option>
+          <option value="excel-material">素材分析</option>
+          <option value="excel-clue">线索评分</option>
+          <option value="excel-account-compare">账户对比分析</option>
+          <option value="excel-weekly-report">周报撰写</option>
+        </select>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ===== 视图：数据总览·优化驾驶舱 ===== -->
+      <section class="view" id="view-overview">
+        <!-- 待办事项 -->
+        <div class="card" id="ov-todo-card">
+          <div class="sec-head">
+            <h3>📋 今日待办</h3>
+            <span class="tag" id="ov-todo-count">0项</span>
+            <span class="spacer" style="flex:1"></span>
+            <a href="#/todo" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:500">管理全部 →</a>
+          </div>
+          <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:100px;background:var(--accent-soft);border-radius:10px;padding:10px 14px;text-align:center">
+              <div style="font-size:20px;font-weight:700;color:var(--accent)" id="ov-todo-total">0</div>
+              <div style="font-size:11px;color:var(--ink-3);margin-top:2px">总待办</div>
+            </div>
+            <div style="flex:1;min-width:100px;background:var(--amber-soft);border-radius:10px;padding:10px 14px;text-align:center">
+              <div style="font-size:20px;font-weight:700;color:var(--amber)" id="ov-todo-active">0</div>
+              <div style="font-size:11px;color:var(--ink-3);margin-top:2px">未完成</div>
+            </div>
+            <div style="flex:1;min-width:100px;background:var(--mint-soft);border-radius:10px;padding:10px 14px;text-align:center">
+              <div style="font-size:20px;font-weight:700;color:var(--mint)" id="ov-todo-done">0</div>
+              <div style="font-size:11px;color:var(--ink-3);margin-top:2px">已完成</div>
+            </div>
+            <div style="flex:1;min-width:100px;background:var(--red-soft);border-radius:10px;padding:10px 14px;text-align:center">
+              <div style="font-size:20px;font-weight:700;color:var(--red)" id="ov-todo-high">0</div>
+              <div style="font-size:11px;color:var(--ink-3);margin-top:2px">高优先级</div>
+            </div>
+          </div>
+          <div id="ov-todo-list" style="max-height:200px;overflow-y:auto"></div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <input type="text" id="ov-todo-input" placeholder="快速添加待办事项..." style="flex:1;border:1px solid var(--border-2);border-radius:8px;padding:8px 12px;font-size:13px;outline:none" onkeydown="if(event.key==='Enter')ovAddTodo()">
+            <select id="ov-todo-priority" style="border:1px solid var(--border-2);border-radius:8px;padding:8px 10px;font-size:12px;outline:none;background:#fff">
+              <option value="high">高优先级</option>
+              <option value="mid" selected>中优先级</option>
+              <option value="low">低优先级</option>
+            </select>
+            <button class="btn primary" style="padding:8px 16px" onclick="ovAddTodo()">添加</button>
+          </div>
+        </div>
+        <div class="page-title" id="ov-dashboard-start"><h2>数据总览 · 优化驾驶舱</h2><span class="page-sub">6账户投放中单元实时健康度 · 异常预警 · 优化机会</span></div>
+        <div class="kpis" id="ov-kpis"></div>
+        <div class="kpis" id="ov-warnings" style="margin-top:10px"></div>
+        <div class="grid-2">
+          <div class="card" style="display:none">
+            <div class="sec-head"><h3>6账户投放战况</h3><span class="tag" id="ov-acc-tag"></span></div>
+            <p class="hint">按消耗降序，CPA低于均值标绿、高于均值20%标红、空耗账户标灰</p>
+            <div class="tbl-wrap"><table id="ov-accounts"></table></div>
+          </div>
+          <div class="card">
+            <h3>转化漏斗</h3>
+            <p class="hint">曝光 → 点击 → 转化，逐层流失定位问题环节</p>
+            <div id="ov-funnel"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="sec-head"><h3>投放中单元明细</h3><span class="tag" id="ov-unit-tag"></span></div>
+          <p class="hint">全部投放中单元按消耗降序，超成本标红、空耗标灰、低成本标绿，点击表头排序</p>
+          <div class="tbl-wrap"><table id="ov-units"></table></div>
+        </div>
+        <div class="card">
+          <h3>快捷入口</h3>
+          <p class="hint">点击进入对应分析模块</p>
+          <div class="grid-21" style="grid-template-columns:repeat(5,1fr)">
+            <a class="card quick" href="#/tencent" style="text-decoration:none;color:inherit;display:none;border-top:3px solid var(--accent)">
+              <div style="font-weight:700;font-size:14px">腾讯广告实时</div>
+              <div style="font-size:12px;color:var(--ink-3);margin-top:4px">6账户数据 / 营销单元明细</div>
+            </a>
+            <a class="card quick" href="#/phone" style="text-decoration:none;color:inherit;display:block;border-top:3px solid var(--blue)">
+              <div style="font-weight:700;font-size:14px">手机型号分析</div>
+              <div style="font-size:12px;color:var(--ink-3);margin-top:4px">机型消耗 / 转化 / 系统分布</div>
+            </a>
+            <a class="card quick" href="#/link-table" style="text-decoration:none;color:inherit;display:block;border-top:3px solid var(--teal)">
+              <div style="font-weight:700;font-size:14px">链路数据表</div>
+              <div style="font-size:12px;color:var(--ink-3);margin-top:4px">各链路系统口径表现明细</div>
+            </a>
+            <a class="card quick" href="#/weekly" style="text-decoration:none;color:inherit;display:block;border-top:3px solid var(--amber)">
+              <div style="font-weight:700;font-size:14px">分周数据分析</div>
+              <div style="font-size:12px;color:var(--ink-3);margin-top:4px">周粒度趋势 / 环比 / 成本</div>
+            </a>
+            <a class="card quick" href="#/link-score" style="text-decoration:none;color:inherit;display:block;border-top:3px solid var(--pink)">
+              <div style="font-weight:700;font-size:14px">链路画像评分</div>
+              <div style="font-size:12px;color:var(--ink-3);margin-top:4px">多维度评分与投放建议</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- 预算管理 -->
+        <div class="card budget-section">
+          <div class="sec-head">
+            <h3>预算消耗追踪</h3>
+            <span class="muted">设置日预算，实时监控消耗进度与余额续航</span>
+          </div>
+          <div id="ov-budget-list"></div>
+          <div style="margin-top:10px;font-size:11px;color:var(--ink-3)">提示：点击日预算输入框可修改，数据保存在本地浏览器。消耗进度按 8:00-24:00 投放时段计算。</div>
+        </div>
+
+        <!-- 优化建议 -->
+        <div class="card" style="margin-top:14px">
+          <div class="sec-head">
+            <h3>智能优化建议</h3>
+            <span class="muted" id="ov-sug-count"></span>
+            <button class="export-op-btn" id="ov-export-op" style="margin-left:auto">导出操作清单</button>
+          </div>
+          <div id="ov-suggestions"></div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：手机型号数据分析 ===== -->
+      <section class="view" id="view-phone">
+        <div id="sync-phone"></div>
+        <div class="kpis" id="ph-kpis"></div>
+        <div class="sub-tabs" id="ph-subtabs">
+          <button class="sub-tab active" data-dim="brand">品牌</button>
+          <button class="sub-tab" data-dim="model">型号</button>
+          <button class="sub-tab" data-dim="price">价格区间</button>
+          <button class="sub-tab" data-dim="age">年龄段</button>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3 id="ph-dim-top-title">Top 10</h3>
+            <p class="hint" id="ph-dim-top-hint"></p>
+            <div class="chart" id="ph-dim-top"></div>
+          </div>
+          <div class="card">
+            <h3 id="ph-dim-pie-title">分布占比</h3>
+            <p class="hint">各维度订单数占比</p>
+            <div class="chart" id="ph-dim-pie"></div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3 id="ph-dim-cost-title">高价课金额 Top 10</h3>
+            <p class="hint">金额集中度</p>
+            <div class="chart" id="ph-dim-cost"></div>
+          </div>
+          <div class="card">
+            <h3 id="ph-dim-cpa-title">单订单产值 Top 10</h3>
+            <p class="hint">产值越高代表性价比越高</p>
+            <div class="chart" id="ph-dim-cpa"></div>
+          </div>
+        </div>
+        <div class="insight" id="ph-insight"></div>
+        <div class="card">
+          <h3 id="ph-dim-table-title">明细表</h3>
+          <p class="hint">点击表头排序</p>
+          <div class="tbl-wrap"><table id="ph-table"></table></div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：链路数据表_系统口径_数据分析 ===== -->
+      <section class="view" id="view-link-table">
+        <div id="sync-link"></div>
+        <div class="kpis" id="lt-kpis"></div>
+        <div class="sub-tabs" id="lt-subtabs">
+          <button class="sub-tab active" data-link="__summary__" onclick="ltLink='__summary__';renderLinkTable();">链路汇总</button>
+        </div>
+        <div id="lt-summary-view">
+        <div class="grid-3">
+          <div class="card">
+            <h3>整体转化漏斗</h3>
+            <p class="hint">低价课订单 → 有效会话 → 高价课转化</p>
+            <div class="chart" id="lt-funnel"></div>
+          </div>
+          <div class="card">
+            <h3>各链路单订单成本</h3>
+            <p class="hint">系统口径，对比链路性价比</p>
+            <div class="chart" id="lt-cpa"></div>
+          </div>
+          <div class="card">
+            <h3>各链路有效订单占比</h3>
+            <p class="hint">订单量结构分布</p>
+            <div class="chart" id="lt-share"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>链路多维度对比</h3>
+          <p class="hint">各链路8项核心指标雷达图对比，不同颜色代表不同链路</p>
+          <div class="chart tall" id="lt-scatter"></div>
+        </div>
+        <div class="insight" id="lt-insight"></div>
+        <div class="card">
+          <h3>链路数据明细（系统口径）</h3>
+          <p class="hint">口径说明：<b>系统口径</b> = 广告平台归因数据，与自建/回传口径存在差异</p>
+          <div class="tbl-wrap"><table id="lt-table"></table></div>
+        </div>
+        <div class="card" id="lt-funnel-card" style="display:none">
+          <h3>各链路漏斗环节流失明细</h3>
+          <p class="hint">低价课订单 → 有效会话 → 到课 → 开口 → 进群 → 高价课转化，每一步转化率与流失人数一目了然</p>
+          <div class="tbl-wrap"><table id="lt-funnel-table"></table></div>
+        </div>
+        </div>
+        <div id="lt-period-view" style="display:none">
+          <div style="margin-bottom:12px">
+            <select class="sub-select" id="lt-period-select"></select>
+            <span style="font-size:12px;color:var(--ink-3)">选择日期查看多维度数据</span>
+          </div>
+          <div class="card">
+            <h3 id="lt-period-title">分期趋势</h3>
+            <p class="hint">4期数据变化趋势</p>
+            <div class="chart tall" id="lt-period-chart"></div>
+          </div>
+          <div class="card">
+            <h3>分期数据明细</h3>
+            <p class="hint">点击表头排序</p>
+            <div class="tbl-wrap"><table id="lt-period-table"></table></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：分周数据分析 ===== -->
+      <section class="view" id="view-weekly">
+        <div id="sync-weekly"></div>
+        <div class="kpis" id="wk-kpis"></div>
+        <div class="sub-tabs" id="wk-subtabs">
+          <button class="sub-tab active" data-wk="link">链路分周</button>
+          <button class="sub-tab" data-wk="placement">版位分周</button>
+        </div>
+        <div id="wk-link-view">
+        <div class="grid-2">
+          <div class="card">
+            <h3>周消耗与转化趋势</h3>
+            <p class="hint">柱 = 消耗，线 = 转化数（双轴）</p>
+            <div class="chart tall" id="wk-trend"></div>
+          </div>
+          <div class="card">
+            <h3>各链路上周 vs 本周成本</h3>
+            <p class="hint">观察成本波动，定位异常链路</p>
+            <div class="chart" id="wk-cpa"></div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>各链路订单有效率</h3>
+            <p class="hint">上周 vs 本周对比</p>
+            <div class="chart" id="wk-cvr"></div>
+          </div>
+          <div class="card">
+            <h3>环比变化</h3>
+            <p class="hint">花费 / 订单 / 成本 环比</p>
+            <div class="chart" id="wk-roi"></div>
+          </div>
+        </div>
+        <div class="insight" id="wk-insight"></div>
+        <div class="card">
+          <h3>链路分周明细表</h3>
+          <p class="hint">含较上周环比变化</p>
+          <div class="tbl-wrap"><table id="wk-table"></table></div>
+        </div>
+        </div>
+        <div id="wk-placement-view" style="display:none">
+        <div class="grid-2">
+          <div class="card">
+            <h3>版位订单数 上周 vs 本周</h3>
+            <p class="hint">各版位订单量对比</p>
+            <div class="chart tall" id="wk-pl-orders"></div>
+          </div>
+          <div class="card">
+            <h3>版位订单成本 上周 vs 本周</h3>
+            <p class="hint">各版位CPA对比</p>
+            <div class="chart tall" id="wk-pl-cpa"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>版位订单占比</h3>
+          <p class="hint">本周各版位订单占比</p>
+          <div class="chart" id="wk-pl-share"></div>
+        </div>
+        <div class="card">
+          <h3>版位分周明细表</h3>
+          <p class="hint">含较上周环比变化</p>
+          <div class="tbl-wrap"><table id="wk-pl-table"></table></div>
+        </div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：链路画像_评分分析 ===== -->
+      <section class="view" id="view-link-score">
+        <div class="ls-header">
+          <h1>📊 链路画像与评分分析</h1>
+          <span class="ls-badge" id="ls-header-badge">数据同步中…</span>
+        </div>
+        <div class="ls-actions">
+          <button class="ls-btn ls-btn-primary" id="ls-export-btn">全量导出</button>
+          <button class="ls-btn ls-btn-secondary" id="ls-spec-btn">口径说明</button>
+        </div>
+        <div class="ls-filter-bar" id="ls-filter-bar" style="display:none">
+          <span class="ls-filter-label">📅 期数：</span>
+          <div id="ls-period-btns" style="display:inline-flex;gap:4px;flex-wrap:wrap"></div>
+          <span class="ls-filter-label" style="margin-left:6px">🔍</span>
+          <input type="text" class="ls-search" id="ls-search" placeholder="搜索机型/品牌">
+          <button class="ls-btn ls-btn-secondary" id="ls-reset-btn" style="padding:5px 14px;font-size:12px">重置</button>
+        </div>
+        <div class="ls-anchor" id="ls-anchor-bar" style="display:none"></div>
+        <div class="ls-tab-nav" id="ls-link-tabs" style="display:none"></div>
+        <div id="ls-content"></div>
+      </section>
+
+      <!-- ===== 视图：素材分析 ===== -->
+      <section class="view" id="view-material">
+        <div class="page-title"><h2>素材分析</h2><span class="page-sub" id="mat-badge">数据同步中…</span></div>
+        <div class="card">
+          <div class="sec-head"><h3>素材效果总览</h3><span class="muted" id="mat-summary"></span></div>
+          <div class="kpi-grid" id="mat-kpi"></div>
+        </div>
+        <div class="card" id="mat-filter-card" style="display:none">
+          <div class="filter-row">
+            <label>诊断筛选</label>
+            <select id="mat-type-filter"><option value="">全部诊断</option></select>
+            <label>生命周期</label>
+            <select id="mat-lifecycle-filter"><option value="">全部状态</option><option value="testing">测试中</option><option value="running">跑量中</option><option value="fatigue">疲劳</option><option value="dead">已淘汰</option></select>
+            <label>搜索素材</label>
+            <input type="text" id="mat-search" placeholder="输入素材名称/标签" style="width:180px">
+            <button class="btn btn-secondary" id="mat-reset">重置</button>
+            <button class="btn btn-primary" id="mat-export">导出Excel</button>
+          </div>
+        </div>
+        <!-- 核心结论 -->
+        <div class="card" id="mat-conclusion-card" style="display:none">
+          <div class="sec-head"><h3>核心结论</h3><span class="muted">基于花费≥1000元素材</span></div>
+          <div id="mat-conclusion"></div>
+        </div>
+        <!-- 高低ROI对比 -->
+        <div class="card" id="mat-compare-card" style="display:none">
+          <div class="sec-head"><h3>高ROI组 vs 低ROI组 深度对比</h3><span class="muted" id="mat-compare-note"></span></div>
+          <div id="mat-compare-table"></div>
+        </div>
+        <!-- 图表 -->
+        <div class="card" id="mat-chart-card" style="display:none">
+          <div class="sec-head"><h3>诊断分布与指标对比</h3></div>
+          <div id="mat-chart" style="height:400px"></div>
+        </div>
+        <!-- Top10高ROI -->
+        <div class="card" id="mat-top-card" style="display:none">
+          <div class="sec-head"><h3>Top 10 高ROI素材</h3><span class="muted" style="color:#22c55e">花费≥1000 · ROI≥50%</span></div>
+          <div class="table-wrap"><table class="data-table" id="mat-top-table"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <!-- Bottom10低ROI -->
+        <div class="card" id="mat-bottom-card" style="display:none">
+          <div class="sec-head"><h3>Bottom 10 低ROI素材</h3><span class="muted" style="color:#ef4444">花费≥1000 · ROI<10%</span></div>
+          <div class="table-wrap"><table class="data-table" id="mat-bottom-table"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <!-- 典型对比 -->
+        <div class="card" id="mat-case-card" style="display:none">
+          <div class="sec-head"><h3>典型素材对比</h3><span class="muted">前端爆炸但亏损 vs 前端平平但ROI高</span></div>
+          <div id="mat-cases"></div>
+        </div>
+        <!-- 标签效果 -->
+        <div class="card" id="mat-tag-card" style="display:none">
+          <div class="sec-head"><h3>素材标签效果排行</h3><span class="muted">加权ROI = Σ(ROI×花费) ÷ Σ花费</span></div>
+          <div class="table-wrap"><table class="data-table" id="mat-tag-table"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <!-- 全量明细 -->
+        <div class="card" id="mat-table-card" style="display:none">
+          <div class="sec-head"><h3>全量素材明细（含诊断）</h3><span class="muted" id="mat-count"></span></div>
+          <div class="table-wrap"><table class="data-table" id="mat-table"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card" id="mat-empty">
+          <div class="empty-state">⏳ 数据待加载 — 请到「Excel工具：素材分析」上传素材数据并点击开始分析，数据将自动同步到本模块</div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：线索评分 ===== -->
+      <section class="view" id="view-clue">
+        <div class="page-title"><h2>线索评分</h2><span class="page-sub" id="clue-badge">数据同步中…</span></div>
+        <div class="card">
+          <div class="sec-head"><h3>核心指标对比</h3><span class="muted" id="clue-summary"></span></div>
+          <div class="kpi-grid" id="clue-kpi"></div>
+        </div>
+        <div class="card" id="clue-overview-card" style="display:none">
+          <div class="sec-head"><h3>一、核心大盘概览对比</h3><span class="muted">手机号 vs 设备号</span></div>
+          <div class="table-wrap"><table class="data-table" id="clue-overview-table"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card" id="clue-finding-card" style="display:none">
+          <div class="sec-head"><h3>二、关键发现</h3><span class="muted">基于数据动态生成</span></div>
+          <div id="clue-findings"></div>
+        </div>
+        <div class="card" id="clue-chart-card" style="display:none">
+          <div class="sec-head"><h3>评分分布与转化率</h3><span class="muted">手机号 vs 设备号 · 1-10分</span></div>
+          <div id="clue-chart" style="width:100%;height:400px"></div>
+        </div>
+        <div class="card" id="clue-tier-card" style="display:none">
+          <div class="sec-head"><h3>评分分层对比</h3><span class="muted">低分段1-3 / 中分段4-6 / 高分段7-10</span></div>
+          <div class="table-wrap"><table class="data-table" id="clue-tier-table"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card" id="clue-detail-card" style="display:none">
+          <div class="sec-head"><h3>按评分明细（1-10分）</h3><span class="muted">全量数据</span></div>
+          <div class="table-wrap"><table class="data-table" id="clue-detail-table"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card" id="clue-suggest-card" style="display:none">
+          <div class="sec-head"><h3>四、优化师投放与腾讯广告实操建议</h3><span class="muted">跟随数据动态变化</span></div>
+          <div id="clue-suggestions"></div>
+        </div>
+        <div class="card" id="clue-trend-card" style="display:none">
+          <div class="sec-head"><h3>日期趋势</h3><span class="muted">每日低价课/高价课/转化率</span></div>
+          <div id="clue-trend-chart" style="width:100%;height:350px"></div>
+        </div>
+        <div class="card" id="clue-empty">
+          <div class="empty-state">⏳ 数据待加载 — 请到「Excel工具：线索评分」上传手机号+设备号两份文件并点击开始分析</div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：线索评分·版位分析 ===== -->
+      <section class="view" id="view-clue-position">
+        <div class="page-title"><h2>线索评分·版位分析</h2><span class="page-sub" id="cp-badge">数据同步中…</span></div>
+        <div class="card">
+          <div class="sec-head"><h3>版位×归因 核心指标对比</h3><span class="muted" id="cp-summary"></span></div>
+          <div class="kpi-grid" id="cp-kpi"></div>
+        </div>
+        <div class="card" id="cp-overview-card" style="display:none">
+          <div class="sec-head"><h3>一、版位横向对比汇总</h3><span class="muted">公小 vs 视频号 × 设备号 vs 手机号</span></div>
+          <div class="table-wrap"><table class="data-table" id="cp-overview-table"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card" id="cp-finding-card" style="display:none">
+          <div class="sec-head"><h3>二、关键发现</h3><span class="muted">基于4份数据动态生成</span></div>
+          <div id="cp-findings"></div>
+        </div>
+        <div class="card" id="cp-chart-card" style="display:none">
+          <div class="sec-head"><h3>评分分布与转化率（4维度对比）</h3><span class="muted">1-10分 · 转化率+ARPU双轴</span></div>
+          <div id="cp-chart" style="width:100%;height:420px"></div>
+        </div>
+        <div class="card" id="cp-tier-card" style="display:none">
+          <div class="sec-head"><h3>评分分层对比（低1-4 / 中5-6 / 高7-10）</h3><span class="muted">二八原则 · 高分人群产值贡献</span></div>
+          <div class="table-wrap"><table class="data-table" id="cp-tier-table"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card" id="cp-trend-card" style="display:none">
+          <div class="sec-head"><h3>日期时序与模型衰减</h3><span class="muted">按月聚合 · 转化率+高分占比趋势</span></div>
+          <div id="cp-trend-chart" style="width:100%;height:380px"></div>
+        </div>
+        <div class="card" id="cp-suggest-card" style="display:none">
+          <div class="sec-head"><h3>三、优化师投放实操建议</h3><span class="muted">跟随数据动态变化</span></div>
+          <div id="cp-suggestions"></div>
+        </div>
+        <div class="card" id="cp-empty">
+          <div class="empty-state">⏳ 数据待加载 — 请到「Excel工具：线索评分·版位分析」上传4份文件并点击开始分析</div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：分账户评分分析 ===== -->
+      <section class="view" id="view-account-score">
+        <div class="page-title"><h2>分账户评分分析</h2><span class="page-sub" id="as-badge">数据同步中…</span></div>
+        <div class="card">
+          <div class="sec-head"><h3>账户核心指标对比</h3><span class="muted" id="as-summary"></span></div>
+          <div class="kpi-grid" id="as-kpi"></div>
+        </div>
+        <div class="card" id="as-overview-card" style="display:none">
+          <div class="sec-head"><h3>一、账户链路对比总览</h3><span class="muted">各广告账户的订单量、平均分、高分率、低分率、复学率</span></div>
+          <div class="table-wrap"><table class="data-table" id="as-overview-table"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card" id="as-chart-card" style="display:none">
+          <div class="sec-head"><h3>二、评分分布对比（1-10分）</h3><span class="muted">各账户评分分布柱状图</span></div>
+          <div id="as-chart" style="width:100%;height:420px"></div>
+        </div>
+        <div class="card" id="as-repeat-card" style="display:none">
+          <div class="sec-head"><h3>三、复学 vs 非复学 评分对比</h3><span class="muted">老客对评分质量的影响</span></div>
+          <div class="table-wrap"><table class="data-table" id="as-repeat-table"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card" id="as-condition-card" style="display:none">
+          <div class="sec-head"><h3>四、评分条件对比（设备号 vs 手机号）</h3><span class="muted">不同匹配条件的评分质量差异</span></div>
+          <div class="table-wrap"><table class="data-table" id="as-condition-table"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card" id="as-tier-card" style="display:none">
+          <div class="sec-head"><h3>五、评分分层分析（低1-3 / 中4-6 / 高7-10）</h3><span class="muted">二八原则 · 高分人群占比与复学率</span></div>
+          <div class="table-wrap"><table class="data-table" id="as-tier-table"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card" id="as-period-card" style="display:none">
+          <div class="sec-head"><h3>六、期数趋势</h3><span class="muted">评分质量随期数变化</span></div>
+          <div id="as-period-chart" style="width:100%;height:380px"></div>
+        </div>
+        <div class="card" id="as-finding-card" style="display:none">
+          <div class="sec-head"><h3>七、核心洞察</h3><span class="muted">基于数据动态生成</span></div>
+          <div id="as-findings"></div>
+        </div>
+        <div class="card" id="as-suggest-card" style="display:none">
+          <div class="sec-head"><h3>八、优化师投放实操建议</h3><span class="muted">跟随数据动态变化</span></div>
+          <div id="as-suggestions"></div>
+        </div>
+        <div class="card" id="as-scoreconv-card" style="display:none">
+          <div class="sec-head"><h3>九、评分 vs 高价课转化（模型有效性验证）</h3><span class="muted">验证评分模型是否与真实成交正相关</span></div>
+          <div id="as-scoreconv"></div>
+        </div>
+        <div class="card" id="as-accprofile-card" style="display:none">
+          <div class="sec-head"><h3>十、各账户 × 画像维度 交叉拆解</h3><span class="muted">账户×性别/年龄/城市/品牌/价格</span></div>
+          <div id="as-accprofile"></div>
+        </div>
+        <div class="card" id="as-profile-card" style="display:none">
+          <div class="sec-head"><h3>十一、人群画像深度拆解</h3><span class="muted">性别/年龄/城市/手机品牌/价格/机型</span></div>
+          <div id="as-profile"></div>
+        </div>
+        <div class="card" id="as-cmp-card" style="display:none">
+          <div class="sec-head"><h3>十二、高分(7-10) vs 低分(1-3) 画像对比</h3><span class="muted">高价值人群特征识别</span></div>
+          <div id="as-cmp"></div>
+        </div>
+        <div class="card" id="as-empty">
+          <div class="empty-state">⏳ 数据待加载 — 请到「Excel工具：分账户评分分析」上传文件并点击开始分析</div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：账户对比分析 ===== -->
+      <section class="view" id="view-account-compare">
+        <div class="page-title"><h2>账户对比分析</h2><span class="page-sub" id="ac-badge">数据同步中…</span></div>
+        <div class="card">
+          <div class="sec-head"><h3>核心指标总览</h3><span class="muted" id="ac-summary"></span></div>
+          <div class="kpi-grid" id="ac-kpi"></div>
+        </div>
+        <div class="card" id="ac-table-card" style="display:none">
+          <div class="sec-head"><h3>一、各账户投放效果对比</h3><span class="muted">按消耗降序，点击表头排序</span></div>
+          <div class="tbl-wrap"><table id="ac-table"></table></div>
+        </div>
+        <div class="card" id="ac-chart-card" style="display:none">
+          <div class="sec-head"><h3>二、账户消耗 vs CPA 散点图</h3><span class="muted">气泡大小=点击量，颜色=转化效率</span></div>
+          <div id="ac-chart" style="width:100%;height:420px"></div>
+        </div>
+        <div class="card" id="ac-bar-card" style="display:none">
+          <div class="sec-head"><h3>三、各账户 CPC / CPA 对比</h3><span class="muted">双轴对比点击成本与转化成本</span></div>
+          <div id="ac-bar" style="width:100%;height:380px"></div>
+        </div>
+        <div class="card" id="ac-conv-card" style="display:none">
+          <div class="sec-head"><h3>四、高价课 vs 低价课转化分布</h3><span class="muted">各账户转化结构对比</span></div>
+          <div id="ac-conv-chart" style="width:100%;height:380px"></div>
+        </div>
+        <div class="card" id="ac-finding-card" style="display:none">
+          <div class="sec-head"><h3>五、核心洞察</h3><span class="muted">基于数据动态生成</span></div>
+          <div id="ac-findings"></div>
+        </div>
+        <div class="card" id="ac-suggest-card" style="display:none">
+          <div class="sec-head"><h3>六、优化师预算调整建议</h3><span class="muted">跟随数据动态变化</span></div>
+          <div id="ac-suggestions"></div>
+        </div>
+        <div class="card" id="ac-empty">
+          <div class="empty-state">⏳ 数据待加载 — 请到「Excel工具：账户对比分析」上传「人群画像数据看板」并点击开始分析</div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：周报历史归档 ===== -->
+      <section class="view" id="view-weekly-archive">
+        <div class="page-title"><h2>周报历史归档</h2><span class="page-sub" id="wa-badge">数据同步中…</span></div>
+        <div class="card">
+          <div class="sec-head"><h3>归档总览</h3><span class="muted" id="wa-summary"></span></div>
+          <div class="kpi-grid" id="wa-kpi"></div>
+        </div>
+        <div class="card" id="wa-timeline-card" style="display:none">
+          <div class="sec-head"><h3>一、历史周报时间线</h3><span class="muted">点击展开查看详情</span></div>
+          <div id="wa-timeline"></div>
+        </div>
+        <div class="card" id="wa-issues-card" style="display:none">
+          <div class="sec-head"><h3>二、高频问题定位汇总</h3><span class="muted">从历史周报中提取的常见问题</span></div>
+          <div id="wa-issues"></div>
+        </div>
+        <div class="card" id="wa-actions-card" style="display:none">
+          <div class="sec-head"><h3>三、调整动作方法论库</h3><span class="muted">历史验证有效的调整策略</span></div>
+          <div id="wa-actions"></div>
+        </div>
+        <div class="card" id="wa-method-card" style="display:none">
+          <div class="sec-head"><h3>四、核心方法论总结</h3><span class="muted">从13期周报提炼的投放规律</span></div>
+          <div id="wa-method"></div>
+        </div>
+        <div class="card" id="wa-empty">
+          <div class="empty-state">⏳ 数据待加载 — 请到「Excel工具：周报历史归档」上传周报文本并点击开始解析</div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：周报撰写 ===== -->
+      <section class="view" id="view-weekly-report">
+        <div class="page-title"><h2>周报撰写</h2><span class="page-sub" id="wr-badge">待生成</span></div>
+        <div class="card" id="wr-generate">
+          <div class="sec-head"><h3>生成周报</h3><span class="muted">基于工作台已导入的数据（链路/素材/线索评分），勾选模块后一键生成</span></div>
+          <div style="margin-top:14px;padding:14px 16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0">
+            <div style="font-weight:600;font-size:13px;color:#1e293b;margin-bottom:10px">周报内容模块（勾选后加入周报，不勾选不生成）</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;font-size:12.5px;color:#334155">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="wr-mod-warning" checked> 方法论预警</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="wr-mod-intake" checked> 进量数据</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="wr-mod-output" checked> 产值数据</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="wr-mod-link" checked> 分链路分析</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="wr-mod-material" checked> 素材分析</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="wr-mod-score" checked> 线索评分</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;grid-column:1/-1"><input type="checkbox" id="wr-mod-action" checked> 本周调整建议</label>
+            </div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button class="ex-btn ex-btn-green" onclick="generateWeeklyReportV2()">一键生成周报</button>
+            <span class="muted" style="font-size:12px">数据来源：工作台已导入的链路数据表/素材分析/线索评分（无需上传Excel）</span>
+          </div>
+        </div>
+        <div class="card" id="wr-empty" style="display:none">
+          <div class="empty-state">点击上方"一键生成周报"按钮生成周报</div>
+        </div>
+        <div class="card" id="wr-actions" style="display:none">
+          <div class="sec-head"><h3>周报操作</h3></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+            <button class="ex-btn" onclick="regenerateWeeklyReport()">重新生成</button>
+            <button class="ex-btn ex-btn-green" onclick="downloadWeeklyReport()">下载周报docx</button>
+            <button class="ex-btn" onclick="copyWeeklyReport()">复制全文</button>
+          </div>
+        </div>
+        <div class="card" id="wr-content" style="display:none">
+          <div class="sec-head"><h3>周报内容</h3><span class="muted" id="wr-date"></span></div>
+          <div id="wr-body" style="margin-top:10px;line-height:1.9;font-size:14px;color:#334155"></div>
+        </div>
+        <div class="card" id="wr-history" style="display:none">
+          <div class="sec-head"><h3>历史周报参考</h3><span class="muted" id="wr-history-count"></span></div>
+          <div id="wr-history-list" style="margin-top:10px"></div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：腾讯广告·多账号（已隐藏） ===== -->
+      <section class="view" id="view-tencent" style="display:none">
+        <div class="card">
+          <div class="sec-head">
+            <h3>腾讯广告实时数据</h3>
+            <span class="tag" id="tc-live-time">未同步</span>
+          </div>
+          <div class="btn-row" style="margin:0 0 12px">
+            <button class="btn primary" id="tcSyncBtn">同步腾讯广告数据</button>
+            <button class="btn" id="tcLogoutBtn" onclick="tcLogout()" style="margin-left:8px">退出登录</button>
+            <span class="hint" id="tc-sync-hint" style="margin-left:8px">点击按钮加载最新抓取的账户数据</span>
+          </div>
+          <div class="kpis" id="tc-live-kpis"></div>
+          <div class="grid-2">
+            <div class="card">
+              <h3>各账户花费对比</h3>
+              <p class="hint">今日各账户消耗情况</p>
+              <div class="chart" id="tc-live-spend"></div>
+            </div>
+            <div class="card">
+              <h3>各账户转化对比</h3>
+              <p class="hint">今日各账户目标转化量</p>
+              <div class="chart" id="tc-live-conv"></div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:14px">
+            <h3>账户实时明细</h3>
+            <p class="hint">点击表头排序</p>
+            <div class="tbl-wrap"><table id="tc-live-table"></table></div>
+          </div>
+        </div>
+
+        <!-- 营销单元明细 -->
+        <div class="card">
+          <div class="sec-head">
+            <h3>营销单元明细（竞价推广）</h3>
+            <span class="tag" id="tc-adunit-count">—</span>
+          </div>
+          <p class="hint">默认合并展示6个广州登鸣账号的全部投放中营销单元，按花费降序排列。可按账号、版位、定向、变体、出价类型筛选，包含出价、曝光、花费、千次展现均价、转化量、转化成本、转化率。数据来源：投放平台-竞价推广-营销单元（仅投放中状态）。</p>
+          <div class="filter-row-enhanced">
+            <select id="tc-adunit-select" class="sub-select" style="min-width:200px"></select>
+            <div class="filter-sep"></div>
+            <label>版位</label>
+            <select id="tc-filter-placement"><option value="">全部</option></select>
+            <label>定向</label>
+            <select id="tc-filter-targeting"><option value="">全部</option></select>
+            <label>变体</label>
+            <select id="tc-filter-variant"><option value="">全部</option></select>
+            <label>出价</label>
+            <select id="tc-filter-bidtype"><option value="">全部</option></select>
+            <div class="filter-sep"></div>
+            <button class="btn btn-secondary" id="tc-filter-reset" style="padding:5px 12px;font-size:12px">重置筛选</button>
+            <button class="export-op-btn" id="tc-export-op" style="margin-left:auto">导出操作清单</button>
+          </div>
+          <span class="hint" id="tc-adunit-total" style="margin-left:4px;display:block;margin-bottom:8px"></span>
+          <div class="kpis" id="tc-adunit-kpis" style="margin-bottom:14px"></div>
+          <div class="tbl-wrap"><table id="tc-adunit-table"></table></div>
+        </div>
+        <div class="insight accent" style="margin:14px 0 0 0">
+          <b>数据范围：</b>仅展示广州登鸣信息科技有限公司6个投放账户（ID: 83676427/83676438/85489979/85489984/87101601/87101605）。营销单元仅统计「投放中」状态。点击「同步腾讯广告数据」刷新实时数据。
+        </div>
+      </section>
+
+      <!-- ===== Excel工具1：手机型号分析 ===== -->
+      <section class="view" id="view-excel-phone">
+        <div class="page-title"><h2>手机型号分析（Excel）</h2><span class="page-sub">上传「投放看板订单明细」，按品牌/型号/价格/年龄聚合产值，一键导出Excel</span></div>
+        <div class="card">
+          <div class="ex-upload-zone" id="t1Zone" onclick="document.getElementById('t1File').click()">
+            <div class="ex-icon">📊</div>
+            <div class="ex-text">点击或拖拽上传「投放看板订单明细」Excel</div>
+            <div class="ex-hint">需包含 sheet「导出数据」，列：手机品牌/手机型号/年龄/手机价格/高价课订单号/高价课订单金额/是否为有效订单/购买日期</div>
+            <div class="ex-filename" id="t1FileName"></div>
+            <input type="file" id="t1File" accept=".xlsx,.xls" multiple style="display:none">
+          </div>
+          <div class="ex-center">
+            <button class="ex-btn" id="t1Btn" onclick="processTab1()" disabled>开始分析</button>
+          </div>
+          <div class="ex-status-bar" id="t1Status" style="display:none"><div class="ex-status-dot" id="t1Dot"></div><span id="t1StatusText"></span></div>
+        </div>
+        <div class="card" id="t1Results" style="display:none">
+          <div class="ex-kpi-grid" id="t1Kpi"></div>
+          <div class="ex-center"><button class="ex-btn ex-btn-green" onclick="downloadTab1()">下载 Excel（分析过数据.xlsx）</button></div>
+          <div class="ex-preview-tabs" style="margin-top:14px">
+            <button class="ex-tab-btn active" onclick="t1Preview('summary',event)">汇总</button>
+            <button class="ex-tab-btn" onclick="t1Preview('brand',event)">品牌</button>
+            <button class="ex-tab-btn" onclick="t1Preview('model',event)">型号</button>
+            <button class="ex-tab-btn" onclick="t1Preview('price',event)">价格</button>
+            <button class="ex-tab-btn" onclick="t1Preview('age',event)">年龄</button>
+          </div>
+          <div id="t1pv-summary"><div class="ex-result-table"><table><tbody id="t1TblSummary"></tbody></table></div></div>
+          <div id="t1pv-brand" style="display:none"><div class="ex-result-table"><table><tbody id="t1TblBrand"></tbody></table></div></div>
+          <div id="t1pv-model" style="display:none"><div class="ex-result-table"><table><tbody id="t1TblModel"></tbody></table></div></div>
+          <div id="t1pv-price" style="display:none"><div class="ex-result-table"><table><tbody id="t1TblPrice"></tbody></table></div></div>
+          <div id="t1pv-age" style="display:none"><div class="ex-result-table"><table><tbody id="t1TblAge"></tbody></table></div></div>
+        </div>
+      </section>
+
+      <!-- ===== Excel工具2：链路数据表·系统口径 ===== -->
+      <section class="view" id="view-excel-link">
+        <div class="page-title"><h2>链路数据表·系统口径（Excel）</h2><span class="page-sub">上传「投放多维度数据看板」，按5链路×多期聚合，含ROI/成本/转化率/到课率等14项指标</span></div>
+        <div class="card">
+          <div class="ex-flow">
+            <div class="ex-flow-box">上传Excel</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">账户ID映射5链路</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">期数×链路聚合</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">7 Sheet导出</div>
+          </div>
+          <div class="ex-upload-zone" id="t2Zone" onclick="document.getElementById('t2File').click()">
+            <div class="ex-icon">📈</div>
+            <div class="ex-text">点击或拖拽上传「投放多维度数据看板」Excel</div>
+            <div class="ex-hint">需包含 sheet「导出数据」，列：期数时间/广告账户ID/广告花费/低价课总成本/低价课订单数/高价课订单数/总产值/有效会话率/直播到课率/开口率/进群率/删友率</div>
+            <div class="ex-filename" id="t2FileName"></div>
+            <input type="file" id="t2File" accept=".xlsx,.xls" multiple style="display:none">
+          </div>
+          <div class="ex-center">
+            <button class="ex-btn" id="t2Btn" onclick="processTab2()" disabled>开始分析</button>
+          </div>
+          <div class="ex-status-bar" id="t2Status" style="display:none"><div class="ex-status-dot" id="t2Dot"></div><span id="t2StatusText"></span></div>
+        </div>
+        <div class="card" id="t2Results" style="display:none">
+          <div class="ex-kpi-grid" id="t2Kpi"></div>
+          <div class="ex-center"><button class="ex-btn ex-btn-green" onclick="downloadTab2()">下载 Excel（链路数据表_系统口径.xlsx）</button></div>
+          <h4 style="margin:14px 0 6px">链路汇总（全部期数合计）</h4>
+          <div class="ex-result-table"><table><tbody id="t2TblSummary"></tbody></table></div>
+          <div id="t2PeriodDetail" style="margin-top:20px"></div>
+        </div>
+      </section>
+
+      <!-- ===== Excel工具3：分周数据对比 ===== -->
+      <section class="view" id="view-excel-weekly">
+        <div class="page-title"><h2>分周数据对比（Excel）</h2><span class="page-sub">本周上传 vs 上周缓存，按链路和版位双维度对比，自动记忆上周数据</span></div>
+        <div class="card">
+          <div class="ex-note">双周机制：本次上传 = 本周，上次上传 = 上周（自动缓存，关闭浏览器不丢失）。首次运行仅有本周数据。</div>
+          <div class="ex-upload-zone" id="t3Zone" onclick="document.getElementById('t3File').click()">
+            <div class="ex-icon">📅</div>
+            <div class="ex-text">点击或拖拽上传本周「投放多维度数据看板」Excel</div>
+            <div class="ex-hint">按列索引读取（账号模式=直投号），列：订单时间/账号模式/版位/广告账户ID/广告花费/低价课订单数/全部低价课订单数/低价课总成本</div>
+            <div class="ex-filename" id="t3FileName"></div>
+            <input type="file" id="t3File" accept=".xlsx,.xls" multiple style="display:none">
+          </div>
+          <div class="ex-center">
+            <button class="ex-btn" id="t3Btn" onclick="processTab3()" disabled>开始分析</button>
+            <button class="ex-btn ex-btn-outline ex-btn-sm" style="margin-left:8px" onclick="clearT3Cache()">清除上周缓存</button>
+          </div>
+          <div class="ex-status-bar" id="t3Status" style="display:none"><div class="ex-status-dot" id="t3Dot"></div><span id="t3StatusText"></span></div>
+        </div>
+        <div class="card" id="t3Results" style="display:none">
+          <div class="ex-week-compare" id="t3WeekInfo"></div>
+          <div class="ex-center"><button class="ex-btn ex-btn-green" onclick="downloadTab3()">下载 Excel（分周数据表.xlsx）</button></div>
+          <h4 style="margin:14px 0 6px">链路分周对比</h4>
+          <div class="ex-result-table"><table><tbody id="t3TblLink"></tbody></table></div>
+          <h4 style="margin:14px 0 6px">版位分周对比</h4>
+          <div class="ex-result-table"><table><tbody id="t3TblPlace"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- ===== Excel工具4：链路画像·评分 ===== -->
+      <section class="view" id="view-excel-score">
+        <div class="page-title"><h2>链路画像·评分分析（Excel）</h2><span class="page-sub">上传「投放多维度数据看板」，按5链路×6维度（城市/性别/年龄/价格/品牌/型号）画像，含评分段分析</span></div>
+        <div class="card">
+          <div class="ex-flow">
+            <div class="ex-flow-box">上传Excel</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">账户ID映射5链路</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">6维度画像聚合</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">评分段分析</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">5 Sheet+口径导出</div>
+          </div>
+          <div class="ex-upload-zone" id="t4Zone" onclick="document.getElementById('t4File').click()">
+            <div class="ex-icon">🎯</div>
+            <div class="ex-text">点击或拖拽上传「投放多维度数据看板」Excel</div>
+            <div class="ex-hint">需包含 sheet「导出数据」，列：广告账户ID/期数时间/城市等级/性别/年龄/手机价格/手机品牌/手机型号/是否为有效订单/高价课订单金额/低价课订单数/评分订单数/总产值</div>
+            <div class="ex-filename" id="t4FileName"></div>
+            <input type="file" id="t4File" accept=".xlsx,.xls" multiple style="display:none">
+          </div>
+          <div class="ex-center">
+            <button class="ex-btn" id="t4Btn" onclick="processTab4()" disabled>开始分析</button>
+          </div>
+          <div class="ex-status-bar" id="t4Status" style="display:none"><div class="ex-status-dot" id="t4Dot"></div><span id="t4StatusText"></span></div>
+        </div>
+        <div class="card" id="t4Results" style="display:none">
+          <div class="ex-kpi-grid" id="t4Kpi"></div>
+          <div class="ex-preview-tabs" id="t4PreviewTabs" style="margin-top:10px"></div>
+          <div class="ex-center"><button class="ex-btn ex-btn-green" onclick="downloadTab4()">下载 Excel（链路画像_评分分析.xlsx）</button></div>
+          <div class="ex-result-table" style="margin-top:10px"><table><tbody id="t4Tbl"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- ===== Excel工具6：素材分析 ===== -->
+      <section class="view" id="view-excel-material">
+        <div class="page-title"><h2>素材分析（Excel）</h2><span class="page-sub">上传素材数据Excel，按素材名称/类型聚合消耗、转化、成本、ROI等指标，同步到分析模块</span></div>
+        <div class="card">
+          <div class="ex-flow">
+            <div class="ex-flow-box">上传Excel</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">素材名称/类型识别</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">多指标聚合</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">效果排行+明细</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">同步分析模块</div>
+          </div>
+          <div class="ex-upload-zone" id="t6Zone" onclick="document.getElementById('t6File').click()">
+            <div class="ex-icon">🎬</div>
+            <div class="ex-text">点击或拖拽上传「素材数据」Excel</div>
+            <div class="ex-hint">需包含列：素材名称/素材ID/素材类型/消耗/展现/点击/转化数/转化成本/转化率等</div>
+            <div class="ex-filename" id="t6FileName"></div>
+            <input type="file" id="t6File" accept=".xlsx,.xls" multiple style="display:none">
+          </div>
+          <div class="ex-center">
+            <button class="ex-btn" id="t6Btn" onclick="processTab6()" disabled>开始分析</button>
+          </div>
+          <div class="ex-status-bar" id="t6Status" style="display:none"><div class="ex-status-dot" id="t6Dot"></div><span id="t6StatusText"></span></div>
+        </div>
+        <div class="card" id="t6Results" style="display:none">
+          <div class="ex-kpi-grid" id="t6Kpi"></div>
+          <div class="ex-center"><button class="ex-btn ex-btn-green" onclick="downloadTab6()">下载 Excel（素材分析_诊断报告.xlsx）</button></div>
+          <h4 style="margin:14px 0 6px">诊断分类概览</h4>
+          <div class="ex-result-table" style="margin-top:10px"><table><tbody id="t6Tbl"></tbody></table></div>
+          <h4 style="margin:20px 0 6px;color:#22c55e">ROI 前10素材详细分析</h4>
+          <div id="t6TopDetail" style="margin-top:10px"></div>
+          <h4 style="margin:20px 0 6px;color:#ef4444">低ROI败笔素材详细分析</h4>
+          <div id="t6BottomDetail" style="margin-top:10px"></div>
+        </div>
+      </section>
+
+      <!-- ===== Excel工具7：线索评分 ===== -->
+      <section class="view" id="view-excel-clue">
+        <div class="page-title"><h2>线索评分（Excel）</h2><span class="page-sub">上传手机号+设备号两份线索评分表，按评分维度分析转化率/产值，同步到分析模块</span></div>
+        <div class="card">
+          <div class="ex-flow">
+            <div class="ex-flow-box">上传手机号表</div><div class="ex-flow-arrow">+</div>
+            <div class="ex-flow-box">上传设备号表</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">评分1-10聚合</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">手机号vs设备号对比</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">同步分析模块</div>
+          </div>
+          <div class="ex-upload-row" style="display:flex;gap:16px;flex-wrap:wrap;margin-top:14px">
+            <div class="ex-upload-zone" style="flex:1;min-width:260px" onclick="document.getElementById('t7PhoneFile').click()">
+              <div class="ex-icon">📱</div>
+              <div class="ex-text">点击或拖拽上传「线索评分表-手机号」</div>
+              <div class="ex-hint">需包含 sheet「下单日期」，列：下单日期/评分/低价课订单数/高价课订单数/转率/产值/评分占比</div>
+              <div class="ex-filename" id="t7PhoneName"></div>
+              <input type="file" id="t7PhoneFile" accept=".xlsx,.xls" multiple style="display:none">
+            </div>
+            <div class="ex-upload-zone" style="flex:1;min-width:260px" onclick="document.getElementById('t7DevFile').click()">
+              <div class="ex-icon">💻</div>
+              <div class="ex-text">点击或拖拽上传「线索评分表-设备号」</div>
+              <div class="ex-hint">需包含 sheet「下单日期」，列：下单日期/评分/低价课订单数/高价课订单数/转率/产值/评分占比</div>
+              <div class="ex-filename" id="t7DevName"></div>
+              <input type="file" id="t7DevFile" accept=".xlsx,.xls" multiple style="display:none">
+            </div>
+          </div>
+          <div class="ex-center" style="margin-top:14px">
+            <button class="ex-btn" id="t7Btn" onclick="processTab7()" disabled>开始分析</button>
+          </div>
+          <div class="ex-status-bar" id="t7Status" style="display:none"><div class="ex-status-dot" id="t7Dot"></div><span id="t7StatusText"></span></div>
+        </div>
+        <div class="card" id="t7Results" style="display:none">
+          <div class="ex-kpi-grid" id="t7Kpi"></div>
+          <div class="ex-center"><button class="ex-btn ex-btn-green" onclick="downloadTab7()">下载 Excel（线索评分分析.xlsx）</button></div>
+          <div id="t7Analysis" style="margin-top:14px"></div>
+        </div>
+      </section>
+
+      <!-- ===== Excel工具9：线索评分·版位分析 ===== -->
+      <section class="view" id="view-excel-clue-position">
+        <div class="page-title"><h2>线索评分·版位分析（Excel）</h2><span class="page-sub">上传4份文件（手机号/设备号 × 公小/视频号），版位横向对比 + 评分有效性验证 + 时序衰减分析</span></div>
+        <div class="card">
+          <div class="ex-flow">
+            <div class="ex-flow-box">4份文件上传</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">评分1-10聚合</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">版位×归因交叉对比</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">时序衰减分析</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">同步分析模块</div>
+          </div>
+          <div id="t9DropZone" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px;border:2px dashed rgba(59,130,246,.3);border-radius:12px;padding:16px;transition:all .2s">
+            <div class="ex-upload-zone t9-zone" data-target="t9PhoneGxFile" data-name="t9PhoneGxName" onclick="document.getElementById('t9PhoneGxFile').click()">
+              <div class="ex-icon">📱</div>
+              <div class="ex-text">手机号-公小版位</div>
+              <div class="ex-hint">线索评分表-手机号-公小版位.xlsx</div>
+              <div class="ex-filename" id="t9PhoneGxName"></div>
+              <input type="file" id="t9PhoneGxFile" accept=".xlsx,.xls" multiple style="display:none">
+            </div>
+            <div class="ex-upload-zone t9-zone" data-target="t9PhoneSpFile" data-name="t9PhoneSpName" onclick="document.getElementById('t9PhoneSpFile').click()">
+              <div class="ex-icon">📱</div>
+              <div class="ex-text">手机号-视频号版位</div>
+              <div class="ex-hint">线索评分表-手机号-视频号版位.xlsx</div>
+              <div class="ex-filename" id="t9PhoneSpName"></div>
+              <input type="file" id="t9PhoneSpFile" accept=".xlsx,.xls" multiple style="display:none">
+            </div>
+            <div class="ex-upload-zone t9-zone" data-target="t9DevGxFile" data-name="t9DevGxName" onclick="document.getElementById('t9DevGxFile').click()">
+              <div class="ex-icon">💻</div>
+              <div class="ex-text">设备号-公小版位</div>
+              <div class="ex-hint">线索评分表-设备号-公小版位.xlsx</div>
+              <div class="ex-filename" id="t9DevGxName"></div>
+              <input type="file" id="t9DevGxFile" accept=".xlsx,.xls" multiple style="display:none">
+            </div>
+            <div class="ex-upload-zone t9-zone" data-target="t9DevSpFile" data-name="t9DevSpName" onclick="document.getElementById('t9DevSpFile').click()">
+              <div class="ex-icon">💻</div>
+              <div class="ex-text">设备号-视频号版位</div>
+              <div class="ex-hint">线索评分表-设备号-视频号版位.xlsx</div>
+              <div class="ex-filename" id="t9DevSpName"></div>
+              <input type="file" id="t9DevSpFile" accept=".xlsx,.xls" multiple style="display:none">
+            </div>
+          </div>
+          <div style="text-align:center;font-size:12px;color:#64748b;margin-top:8px">💡 可一次拖拽4个文件到上方区域，系统自动按文件名匹配（含"手机/设备"+"公小/视频号"）</div>
+          <div class="ex-center" style="margin-top:14px">
+            <button class="ex-btn" id="t9Btn" onclick="processTab9()" disabled>开始分析</button>
+          </div>
+          <div class="ex-status-bar" id="t9Status" style="display:none"><div class="ex-status-dot" id="t9Dot"></div><span id="t9StatusText"></span></div>
+        </div>
+        <div class="card" id="t9Results" style="display:none">
+          <div class="ex-kpi-grid" id="t9Kpi"></div>
+          <div class="ex-center"><button class="ex-btn ex-btn-green" onclick="downloadTab9()">下载 Excel（版位线索评分分析.xlsx）</button></div>
+          <div id="t9Analysis" style="margin-top:14px"></div>
+        </div>
+      </section>
+
+      <!-- ===== Excel工具10：分账户评分分析 ===== -->
+      <section class="view" id="view-excel-account-score">
+        <div class="page-title"><h2>分账户评分分析（Excel）</h2><span class="page-sub">上传评分表+订单明细表，通过订单号关联，深度分析账户×评分×画像（性别/年龄/城市/手机品牌/价格/型号）</span></div>
+        <div class="card">
+          <div class="ex-flow">
+            <div class="ex-flow-box">上传评分表+订单表</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">订单号关联</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">账户×评分×画像</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">高低分人群对比</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">同步分析模块</div>
+          </div>
+          <div class="ex-upload-row" style="margin-top:14px;gap:16px">
+            <div class="ex-upload-zone" onclick="document.getElementById('t10File1').click()" style="flex:1">
+              <div class="ex-icon">📊</div>
+              <div class="ex-text">点击或拖拽上传文件（可多选）</div>
+              <div class="ex-hint">评分表 + 订单明细表，自动识别类型，不限顺序</div>
+              <div class="ex-filename" id="t10FileName1"></div>
+              <input type="file" id="t10File1" accept=".xlsx,.xls,.csv" multiple style="display:none">
+            </div>
+            <div class="ex-upload-zone" onclick="document.getElementById('t10File2').click()" style="flex:1">
+              <div class="ex-icon">📋</div>
+              <div class="ex-text">或继续添加文件（可多选）</div>
+              <div class="ex-hint">两个区域都可上传，系统自动合并分析</div>
+              <div class="ex-filename" id="t10FileName2"></div>
+              <input type="file" id="t10File2" accept=".xlsx,.xls,.csv" multiple style="display:none">
+            </div>
+          </div>
+          <div class="ex-center" style="margin-top:14px">
+            <button class="ex-btn" id="t10Btn" onclick="processTab10()" disabled>开始分析</button>
+          </div>
+          <div class="ex-status-bar" id="t10Status" style="display:none"><div class="ex-status-dot" id="t10Dot"></div><span id="t10StatusText"></span></div>
+        </div>
+        <div class="card" id="t10Results" style="display:none">
+          <div class="ex-kpi-grid" id="t10Kpi"></div>
+          <div class="ex-center"><button class="ex-btn ex-btn-green" onclick="downloadTab10()">下载 Excel（分账户评分分析.xlsx）</button></div>
+          <div id="t10Analysis" style="margin-top:14px"></div>
+        </div>
+      </section>
+
+      <!-- ===== Excel工具12：账户对比分析 ===== -->
+      <section class="view" id="view-excel-account-compare">
+        <div class="page-title"><h2>账户对比分析（Excel）</h2><span class="page-sub">上传「人群画像数据看板」，自动按账户评分聚合消耗/点击/高低价课转化，一键对比并同步分析模块</span></div>
+        <div class="card">
+          <div class="ex-flow">
+            <div class="ex-flow-box">上传人群画像看板</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">按账户评分聚合</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">CPC/CPA对比</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">预算调整建议</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">同步分析模块</div>
+          </div>
+          <div class="ex-upload-zone" id="t12Zone" onclick="document.getElementById('t12File').click()" style="margin-top:14px">
+            <div class="ex-icon">📊</div>
+            <div class="ex-text">点击或拖拽上传「人群画像数据看板」Excel</div>
+            <div class="ex-hint">需包含 sheet「导出数据」，列：账户评分(E) / 点击(F) / 高价课(I) / 消耗(J) / CPC(K) / 低价课(L)</div>
+            <div class="ex-filename" id="t12FileName"></div>
+            <input type="file" id="t12File" accept=".xlsx,.xls" multiple style="display:none">
+          </div>
+          <div class="ex-center" style="margin-top:14px">
+            <button class="ex-btn" id="t12Btn" onclick="processTab12()" disabled>开始分析</button>
+          </div>
+          <div class="ex-status-bar" id="t12Status" style="display:none"><div class="ex-status-dot" id="t12Dot"></div><span id="t12StatusText"></span></div>
+        </div>
+        <div class="card" id="t12Results" style="display:none">
+          <div class="ex-kpi-grid" id="t12Kpi"></div>
+          <div class="ex-center" style="margin-bottom:10px">
+            <button class="ex-btn ex-btn-green" onclick="syncTab12ToAnalysis()">📤 同步到分析模块</button>
+            <button class="ex-btn" onclick="downloadTab12()">下载 Excel（账户对比分析.xlsx）</button>
+          </div>
+          <h4 style="margin:10px 0 6px">各账户投放效果对比</h4>
+          <div class="ex-result-table"><table><tbody id="t12Tbl"></tbody></table></div>
+          <div id="t12Suggestions" style="margin-top:14px"></div>
+        </div>
+      </section>
+
+      <!-- ===== Excel工具11：周报历史归档 ===== -->
+      <section class="view" id="view-excel-weekly-archive">
+        <div class="page-title"><h2>周报历史归档（Excel）</h2><span class="page-sub">上传历史周报文本，自动解析每期结构、问题定位与调整动作，提炼方法论</span></div>
+        <div class="card">
+          <div class="ex-flow">
+            <div class="ex-flow-box">上传周报文本</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">按日期分期</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">提取问题/调整</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">方法论提炼</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">同步分析模块</div>
+          </div>
+          <div class="ex-upload-row" style="margin-top:14px">
+            <div class="ex-upload-zone" onclick="document.getElementById('t11File').click()">
+              <div class="ex-icon">📋</div>
+              <div class="ex-text">点击或拖拽上传「周报文本.txt」</div>
+              <div class="ex-hint">从微信文档全选复制保存为txt，或直接粘贴文本到下方</div>
+              <div class="ex-filename" id="t11FileName"></div>
+              <input type="file" id="t11File" accept=".txt,.xlsx,.xls,.csv" multiple style="display:none">
+            </div>
+          </div>
+          <div style="margin-top:14px">
+            <div style="font-size:12px;color:#64748b;margin-bottom:6px">或直接粘贴周报文本：</div>
+            <textarea id="t11Text" rows="6" style="width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:10px;font-size:12px;resize:vertical" placeholder="将微信文档里的周报内容全选复制粘贴到这里..."></textarea>
+          </div>
+          <div class="ex-center" style="margin-top:14px">
+            <button class="ex-btn" id="t11Btn" onclick="processTab11()">开始解析</button>
+          </div>
+          <div class="ex-status-bar" id="t11Status" style="display:none"><div class="ex-status-dot" id="t11Dot"></div><span id="t11StatusText"></span></div>
+        </div>
+        <div class="card" id="t11Results" style="display:none">
+          <div class="ex-kpi-grid" id="t11Kpi"></div>
+          <div class="ex-center"><button class="ex-btn ex-btn-green" onclick="downloadTab11()">下载 Excel（周报历史归档.xlsx）</button></div>
+          <div id="t11Analysis" style="margin-top:14px"></div>
+        </div>
+      </section>
+
+      <!-- ===== Excel工具8：周报撰写 ===== -->
+      <section class="view" id="view-excel-weekly-report">
+        <div class="page-title"><h2>周报撰写（Excel）</h2><span class="page-sub">上传1~4个文件（历史周报docx + 本周数据表Excel）→ 自动解析生成周报</span></div>
+        <div class="card">
+          <div class="ex-flow">
+            <div class="ex-flow-box">上传1~4个文件</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">自动识别类型</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">解析周报+数据</div><div class="ex-flow-arrow">→</div>
+            <div class="ex-flow-box">一键生成周报</div>
+          </div>
+          <div class="ex-upload-row" style="margin-top:14px">
+            <div class="ex-upload-zone" onclick="document.getElementById('t8AllFiles').click()">
+              <div class="ex-icon">📁</div>
+              <div class="ex-text">点击或拖拽上传1~4个文件</div>
+              <div class="ex-hint">支持：历史周报.docx + 本周数据表.xlsx（可混合上传）<br>点击后按住Ctrl可多选文件，或直接拖拽多个文件到此处</div>
+              <div class="ex-filename" id="t8AllFileName"></div>
+              <input type="file" id="t8AllFiles" accept=".docx,.xlsx,.xls,.csv" multiple style="display:none">
+            </div>
+          </div>
+          <div style="margin-top:16px;padding:14px 16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0">
+            <div style="font-weight:600;font-size:13px;color:#1e293b;margin-bottom:10px">📋 周报内容模块（勾选后加入周报，不勾选不生成）</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;font-size:12.5px;color:#334155">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="wr-mod-warning" checked> 方法论预警（女性占比/成本/ROI/素材类型）</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="wr-mod-intake" checked> 进量数据（总订单/成本/女性占比/版位占比）</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="wr-mod-output" checked> 产值数据（各链路产值/ROI/达标状态）</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="wr-mod-link" checked> 分链路分析（自动识别问题+生成调整建议）</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="wr-mod-material" checked> 素材分析（高ROI Top5/低ROI素材预警）</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="wr-mod-score" checked> 线索评分（高分段占比/转化率/产值贡献）</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;grid-column:1/-1"><input type="checkbox" id="wr-mod-action" checked> 本周调整建议（自动生成4条）</label>
+            </div>
+          </div>
+          <div class="ex-center" style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="ex-btn" id="t8ParseAllBtn" onclick="parseAllWeeklyFiles()" disabled>解析全部</button>
+            <button class="ex-btn ex-btn-green" id="t8GenFinalBtn" onclick="generateWeeklyReportV2()" disabled>一键生成周报</button>
+            <button class="ex-btn" id="t8DownloadBtn" onclick="downloadWeeklyReport()" disabled>下载周报</button>
+          </div>
+          <div class="ex-status-bar" id="t8Status" style="display:none"><div class="ex-status-dot" id="t8Dot"></div><span id="t8StatusText"></span></div>
+        </div>
+        <div class="card" id="t8Results" style="display:none">
+          <div class="sec-head"><h3>解析结果</h3><span class="muted" id="t8Count"></span></div>
+          <div id="t8HistoryList" style="margin-top:10px"></div>
+        </div>
+        <div class="card" id="t8DataPreview" style="display:none">
+          <div class="sec-head"><h3>数据识别结果</h3></div>
+          <div id="t8DataSummary" style="margin-top:10px;font-size:12px;color:#475569;line-height:1.8;background:#f8fafc;padding:12px;border-radius:8px"></div>
+        </div>
+        <div class="card" id="t8Generated" style="display:none">
+          <div class="sec-head"><h3>生成的周报</h3><span class="muted">可在分析模块-周报撰写中查看和编辑</span></div>
+          <div id="t8Preview" style="margin-top:10px;max-height:500px;overflow-y:auto;padding:16px;background:#f8fafc;border-radius:8px"></div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：数据管理 ===== -->
+      <section class="view" id="view-data">
+        <div class="kpis" id="dm-kpis"></div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>导入投放数据</h3>
+            <p class="hint">把巨量引擎 / 腾讯广告等后台导出的明细数据（CSV）导入替换当前数据集，导入后所有模块自动重算。</p>
+            <div class="upload-zone" id="dropZone">
+              <div style="font-size:13px;color:var(--ink-2)">拖拽 CSV 文件到此处，或点击选择文件</div>
+              <button class="up-btn" id="pickFile">选择 CSV 文件</button>
+              <input type="file" id="fileInput" accept=".csv,text/csv" multiple style="display:none">
+              <small>支持逗号 / Tab 分隔，UTF-8 编码；文件较大（&gt; 5万行）时建议先聚合后再导入</small>
+            </div>
+            <div class="btn-row">
+              <button class="btn ghost" id="btnTemplate">下载字段模板</button>
+              <button class="btn ghost" id="btnExport">导出当前数据</button>
+              <button class="btn ghost" id="btnResetDemo">恢复示例数据</button>
+            </div>
+            <h3 style="margin-top:20px">粘贴 CSV 导入</h3>
+            <p class="hint">直接粘贴表格内容（首行为表头），点击下方按钮导入</p>
+            <textarea class="csv-in" id="csvPaste" placeholder="日期,计划,链路,版位,设备型号,操作系统,消耗,展现,点击,转化数,收入&#10;2026-08-01,夏季放量-下载,APP下载,信息流,iPhone 15 Pro,iOS,120.5,12340,380,62,0"></textarea>
+            <div class="btn-row">
+              <button class="btn primary" id="btnImportPaste">粘贴内容导入</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3>字段说明</h3>
+            <p class="hint">工作台按以下字段聚合计算，缺失字段会用默认值兜底</p>
+            <div class="field-grid" id="dm-fields"></div>
+            <h3 style="margin-top:20px">使用步骤</h3>
+            <ol class="steplist">
+              <li>在广告平台后台导出「报表-明细数据」，勾选 日期 / 计划 / 转化链路 / 设备型号 等维度；</li>
+              <li>若后台字段名与工作台不一致，可先在 Excel 中批量改表头（映射关系见「字段说明」）；</li>
+              <li>点击「选择 CSV 文件」导入，或把表格内容复制粘贴到左侧文本框；</li>
+              <li>导入成功后自动回到「数据总览」，所有模块基于新数据重算。</li>
+            </ol>
+          </div>
+        </div>
+        <div class="card" id="dm-sync-card">
+          <h3>数据存储与同步</h3>
+          <p class="hint">投放数据和Excel分析结果均保存在浏览器本地，关闭后重新打开仍在。</p>
+          <div id="dm-sync"></div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：待办事项 ===== -->
+      <section class="view" id="view-todo">
+        <div class="page-title"><h2>待办事项</h2><span class="page-sub">投放工作任务管理 · 本地保存 · 优先级标记</span></div>
+        <div class="card">
+          <div class="todo-input-row">
+            <input type="text" id="todo-input" placeholder="输入待办事项，回车添加…" maxlength="200">
+            <select id="todo-priority">
+              <option value="high">高优先级</option>
+              <option value="mid" selected>中优先级</option>
+              <option value="low">低优先级</option>
+            </select>
+            <button class="btn primary" id="todo-add">添加</button>
+          </div>
+          <div class="todo-filters">
+            <button class="todo-filter-btn active" data-filter="all">全部</button>
+            <button class="todo-filter-btn" data-filter="active">未完成</button>
+            <button class="todo-filter-btn" data-filter="done">已完成</button>
+            <div class="todo-stats" id="todo-stats"></div>
+          </div>
+          <div class="todo-list" id="todo-list"></div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：操作日志 ===== -->
+      <section class="view" id="view-op-log">
+        <div class="page-title"><h2>操作日志与效果追踪</h2><span class="page-sub">记录每一次投放操作，追踪操作前后指标变化</span></div>
+        <div class="card">
+          <div class="sec-head"><h3>记录新操作</h3><span class="muted">手动记录或从优化建议一键导入</span></div>
+          <div style="display:grid;grid-template-columns:120px 1fr 100px 120px auto;gap:10px;align-items:center;margin-bottom:12px">
+            <select id="op-log-type" style="padding:6px 10px;border:1px solid var(--border-2);border-radius:7px;font-size:12px">
+              <option value="pause">暂停单元</option>
+              <option value="reduce">降价/调低出价</option>
+              <option value="increase">加预算/提价</option>
+              <option value="creative">更换素材</option>
+              <option value="other">其他操作</option>
+            </select>
+            <input type="text" id="op-log-target" placeholder="操作对象（单元名/计划名/账户ID）" style="padding:6px 10px;border:1px solid var(--border-2);border-radius:7px;font-size:12px">
+            <input type="text" id="op-log-before" placeholder="操作前CPA" style="padding:6px 10px;border:1px solid var(--border-2);border-radius:7px;font-size:12px">
+            <input type="text" id="op-log-note" placeholder="备注（可选）" style="padding:6px 10px;border:1px solid var(--border-2);border-radius:7px;font-size:12px">
+            <button class="btn primary" id="op-log-add" style="padding:6px 16px;font-size:12px">记录</button>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="sec-head"><h3>操作历史</h3><span class="muted" id="op-log-count"></span></div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <button class="btn btn-secondary" id="op-log-filter-all" style="padding:4px 12px;font-size:11px">全部</button>
+            <button class="btn btn-secondary" id="op-log-filter-pending" style="padding:4px 12px;font-size:11px">待执行</button>
+            <button class="btn btn-secondary" id="op-log-filter-done" style="padding:4px 12px;font-size:11px">已执行</button>
+            <span class="spacer"></span>
+            <button class="btn btn-secondary" id="op-log-clear" style="padding:4px 12px;font-size:11px;color:#ef4444">清空全部</button>
+          </div>
+          <div id="op-log-list"></div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：A/B测试 ===== -->
+      <section class="view" id="view-ab-test">
+        <div class="page-title"><h2>A/B测试管理</h2><span class="page-sub">结构化管理素材/定向/出价测试，计算置信度，沉淀测试结论</span></div>
+        <div class="card">
+          <div class="sec-head"><h3>创建新测试</h3></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+            <input type="text" id="ab-name" placeholder="测试名称（如：痛点文案vs普通文案）" style="padding:6px 10px;border:1px solid var(--border-2);border-radius:7px;font-size:12px">
+            <select id="ab-var" style="padding:6px 10px;border:1px solid var(--border-2);border-radius:7px;font-size:12px">
+              <option value="creative">素材变量</option>
+              <option value="targeting">定向变量</option>
+              <option value="bid">出价变量</option>
+              <option value="landing">落地页变量</option>
+            </select>
+            <button class="btn primary" id="ab-create" style="padding:6px 16px;font-size:12px">创建测试</button>
+          </div>
+        </div>
+        <div id="ab-test-list" style="margin-top:14px"></div>
+      </section>
+
+      <!-- ===== 视图：日报生成 ===== -->
+      <section class="view" id="view-daily-report">
+        <div class="page-title"><h2>日报生成</h2><span class="page-sub">基于工作台数据一键生成投放日报，无需手动整理</span></div>
+        <div class="card">
+          <div class="sec-head"><h3>日报参数</h3></div>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+            <label style="font-size:12px">日报日期：</label>
+            <input type="date" id="dr-date" style="padding:5px 10px;border:1px solid var(--border-2);border-radius:7px;font-size:12px">
+            <label style="font-size:12px">包含模块：</label>
+            <label style="font-size:12px"><input type="checkbox" id="dr-include-overview" checked> 数据总览</label>
+            <label style="font-size:12px"><input type="checkbox" id="dr-include-budget" checked> 预算追踪</label>
+            <label style="font-size:12px"><input type="checkbox" id="dr-include-suggestion" checked> 优化建议</label>
+            <label style="font-size:12px"><input type="checkbox" id="dr-include-material" checked> 素材动态</label>
+            <label style="font-size:12px"><input type="checkbox" id="dr-include-oplog" checked> 操作记录</label>
+            <button class="btn primary" id="dr-generate" style="padding:6px 16px;font-size:12px">生成日报</button>
+            <button class="btn btn-secondary" id="dr-copy" style="padding:6px 16px;font-size:12px" disabled>复制全文</button>
+          </div>
+        </div>
+        <div class="card" id="dr-result-card" style="margin-top:14px;display:none">
+          <div class="sec-head"><h3>日报内容</h3><span class="muted" id="dr-date-label"></span></div>
+          <div id="dr-content" style="margin-top:10px;line-height:1.9;font-size:13px;color:#334155;white-space:pre-wrap"></div>
+        </div>
+        <div class="card" id="dr-empty" style="margin-top:14px">
+          <div class="empty-state-enhanced"><div class="empty-icon">📝</div>点击上方"生成日报"按钮，系统将自动汇总当前数据生成投放日报</div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：数据质量 ===== -->
+      <section class="view" id="view-data-quality">
+        <div class="page-title"><h2>数据质量校验</h2><span class="page-sub">自动检测异常值、缺失字段、数据不一致，避免基于脏数据决策</span></div>
+        <div class="card">
+          <div class="sec-head"><h3>校验结果</h3>
+            <button class="btn primary" id="dq-run" style="padding:5px 14px;font-size:12px">重新校验</button>
+          </div>
+          <div id="dq-kpis" style="margin-bottom:14px"></div>
+          <div id="dq-issues"></div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：前后端关联 ===== -->
+      <section class="view" id="view-link-config">
+        <div class="page-title"><h2>前后端数据关联配置</h2><span class="page-sub">建立投放单元与后端线索的映射关系，实现单元级ROI追踪</span></div>
+        <div class="card">
+          <div class="sec-head"><h3>关联方式</h3></div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+              <input type="radio" name="link-mode" value="plan" checked> 按计划名称匹配
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+              <input type="radio" name="link-mode" value="utm"> 按UTM参数匹配
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+              <input type="radio" name="link-mode" value="manual"> 手动映射
+            </label>
+          </div>
+          <div class="insight" style="margin-bottom:14px">
+            <b>说明：</b>当前工作台的前端投放数据（腾讯广告）和后端转化数据（链路/线索）是分开的。要实现单元级ROI追踪，需要后端线索数据中包含可匹配的字段（如计划名、UTM参数、单元ID）。配置后，系统将自动关联并在各分析模块展示单元级后端转化数据。
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="sec-head"><h3>字段映射配置</h3><span class="muted">前端字段 → 后端字段</span></div>
+          <div id="link-field-map"></div>
+          <button class="btn primary" id="link-save" style="margin-top:12px;padding:6px 16px;font-size:12px">保存配置</button>
+        </div>
+        <div class="card" style="margin-top:14px" id="link-result-card" style="display:none">
+          <div class="sec-head"><h3>关联结果预览</h3><span class="muted" id="link-match-rate"></span></div>
+          <div class="tbl-wrap"><table id="link-result-table"></table></div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：命名字典 ===== -->
+      <section class="view" id="view-name-dict">
+        <div class="page-title"><h2>营销单元命名字典</h2><span class="page-sub">自定义命名规则解析，提升单元名维度提取准确率</span></div>
+        <div class="card">
+          <div class="sec-head"><h3>命名规则配置</h3>
+            <button class="btn primary" id="dict-add" style="padding:5px 14px;font-size:12px">添加规则</button>
+            <button class="btn btn-secondary" id="dict-save" style="padding:5px 14px;font-size:12px">保存</button>
+          </div>
+          <div id="dict-rules"></div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="sec-head"><h3>解析测试</h3></div>
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px">
+            <input type="text" id="dict-test-input" placeholder="输入单元名测试解析，如：0830-太极灵儿-多版位--排低r城42+男-高r迭代--双出价" style="flex:1;padding:6px 10px;border:1px solid var(--border-2);border-radius:7px;font-size:12px">
+            <button class="btn primary" id="dict-test-btn" style="padding:6px 16px;font-size:12px">解析</button>
+          </div>
+          <div id="dict-test-result"></div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：跨账户分析 ===== -->
+      <section class="view" id="view-cross-account">
+        <div class="page-title"><h2>跨账户分析与内部竞争检测</h2><span class="page-sub">检测多账户间重复定向/素材，识别内部竞争，优化预算分配</span></div>
+        <div class="card">
+          <div class="sec-head"><h3>账户横向对比</h3></div>
+          <div id="ca-compare"></div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="sec-head"><h3>重复单元检测（内部竞争）</h3><span class="muted">基于版位+定向+出价类型匹配相似单元</span></div>
+          <div id="ca-duplicates"></div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="sec-head"><h3>预算分配建议</h3><span class="muted">基于ROI和消耗效率的跨账户预算优化</span></div>
+          <div id="ca-budget-suggest"></div>
+        </div>
+      </section>
+
+      <!-- ===== 视图：转化延迟 ===== -->
+      <section class="view" id="view-conv-delay">
+        <div class="page-title"><h2>转化延迟分析（T+N回款追踪）</h2><span class="page-sub">追踪广告消耗后T+1/T+3/T+7的高价课转化回款，避免误杀新单元</span></div>
+        <div class="card">
+          <div class="sec-head"><h3>转化延迟分布</h3><span class="muted">消耗日期后各天的转化占比</span></div>
+          <div class="chart" id="cd-chart" style="height:350px"></div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="sec-head"><h3>分链路回款追踪</h3><span class="muted">各链路T+0/T+1/T+3/T+7累计转化率与产值</span></div>
+          <div class="tbl-wrap"><table class="delay-table" id="cd-table"></table></div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="sec-head"><h3>回传期单元保护</h3><span class="muted">投放不足48小时的单元不纳入空耗/超成本判断</span></div>
+          <div id="cd-protected"></div>
+        </div>
+        <div class="insight" style="margin-top:14px">
+          <b>数据说明：</b>转化延迟分析需要多期历史数据积累。当前工作台已开启历史数据快照功能，每次同步数据时自动保存带时间戳的快照。积累足够数据后，此处将自动展示T+N回款曲线。如需立即查看，请先在「数据管理」中导入多期数据。
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modalTitle">导入完成</h3>
+    <p id="modalMsg"></p>
+    <div class="err" id="modalErr"></div>
+    <div class="btn-row">
+      <button class="btn primary" id="modalOk">知道了</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- ===== 腾讯广告登录弹窗 ===== -->
+<div id="tc-login-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:none;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;width:480px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);overflow:hidden">
+    <div style="background:linear-gradient(135deg,#3b82f6,#2563eb);padding:20px 24px;color:#fff">
+      <div style="font-size:18px;font-weight:700">腾讯广告登录</div>
+      <div style="font-size:13px;opacity:0.85;margin-top:4px">爬虫需要登录腾讯广告平台才能获取实时数据</div>
+    </div>
+    <div style="padding:24px">
+      <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:16px">
+        <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:8px">登录步骤：</div>
+        <div style="font-size:13px;color:#475569;line-height:2">
+          1. 点击下方按钮打开腾讯广告平台<br>
+          2. 在新窗口中完成登录（微信扫码/账号密码）<br>
+          3. 登录成功后关闭新窗口<br>
+          4. 回到本页面点击「登录完成，开始爬虫」
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="ex-btn" style="flex:1;min-width:140px" onclick="window.open('https://ad.qq.com/','_blank')">打开腾讯广告平台</button>
+        <button class="ex-btn ex-btn-green" style="flex:1;min-width:140px" onclick="tcLoginSuccess()">登录完成，开始爬虫</button>
+      </div>
+      <div style="text-align:center;margin-top:14px">
+        <button style="background:none;border:none;color:#94a3b8;font-size:12px;cursor:pointer" onclick="closeTcLoginModal()">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 爬虫进度弹窗 ===== -->
+<div id="tc-crawl-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9998;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;width:420px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:24px">
+    <div style="font-size:16px;font-weight:700;color:#1e293b;margin-bottom:16px">正在爬取腾讯广告数据...</div>
+    <div id="tc-crawl-progress" style="font-size:13px;color:#475569;line-height:2;margin-bottom:16px">
+      <div>⏳ 正在连接腾讯广告平台...</div>
+    </div>
+    <div style="background:#e2e8f0;border-radius:6px;height:8px;overflow:hidden">
+      <div id="tc-crawl-bar" style="background:linear-gradient(90deg,#3b82f6,#22c55e);height:100%;width:0%;transition:width 0.3s"></div>
+    </div>
+  </div>
+</div>
+
+<script src="vendor.js"></script>
+<script src="app.js?v=10"></script>
+</body>
+</html>
+
