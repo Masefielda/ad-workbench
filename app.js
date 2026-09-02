@@ -1168,13 +1168,13 @@ function renderLinkScore(){
   const si=$('#ls-search');si.value=lsSearchText;si.oninput=()=>{lsSearchText=si.value;renderLinkScore();};
   $('#ls-reset-btn').onclick=()=>{lsPeriodFilter='';lsSearchText='';lsSort={};renderLinkScore();};
   $('#ls-export-btn').onclick=lsExportCurrent;
-  $('#ls-spec-btn').onclick=()=>{showModal('口径说明','<div style="font-size:13px;line-height:1.8">1. 数据源：投放看板订单明细（Excel工具4同步）<br>2. 链路映射：83676427→PF+小程序问答；83676438+87101601→H5问答+首页；83676778+85489979→小程序问答(含首页)；85489984→H5分流；87101605→PF+AI落地页<br>3. 七大维度：城市等级/具体城市/性别/年龄档/价格档/品牌/手机型号<br>4. 订单占比=该维度值订单数÷当期总订单数<br>5. 高价转化率=高价课订单数÷订单数<br>6. 单订单产值=高价课金额÷有效订单数<br>7. 评分推导：有评分=好友状态为曾添加/系统-已添加/人工-已添加；无评分=系统-未添加或空<br>8. 评分分析仅对PF+小程序问答、PF+AI落地页显示<br>9. 期数筛选：全部期数=平铺各期+合计；仅看合计=只显示合计行<br>10. 搜索：仅对品牌和手机型号维度生效</div>');};
-  const dims7=[{key:'city',name:'城市等级'},{key:'cityName',name:'具体城市'},{key:'gender',name:'性别'},{key:'age',name:'年龄档'},{key:'price',name:'价格档'},{key:'brand',name:'品牌'},{key:'model',name:'手机型号'},{key:'score',name:'评分分析'}];
+  $('#ls-spec-btn').onclick=()=>{showModal('口径说明','<div style="font-size:13px;line-height:1.8">1. 数据源：投放看板订单明细（Excel工具4同步）<br>2. 链路映射：83676427→PF+小程序问答；83676438+87101601→H5问答+首页；83676778+85489979→小程序问答(含首页)；85489984→H5分流；87101605→PF+AI落地页<br>3. 八大维度：城市等级/省份/具体城市/性别/年龄档/价格档/品牌/手机型号<br>4. 订单占比=该维度值订单数÷当期总订单数<br>5. 高价转化率=高价课订单数÷订单数<br>6. 单订单产值=高价课金额÷有效订单数<br>7. 评分推导：有评分=好友状态为曾添加/系统-已添加/人工-已添加；无评分=系统-未添加或空<br>8. 评分分析仅对PF+小程序问答、PF+AI落地页显示<br>9. 期数筛选：全部期数=平铺各期+合计；仅看合计=只显示合计行<br>10. 搜索：仅对品牌和手机型号维度生效</div>');};
+  const dims7=[{key:'city',name:'城市等级'},{key:'province',name:'省份'},{key:'cityName',name:'具体城市'},{key:'gender',name:'性别'},{key:'age',name:'年龄档'},{key:'price',name:'价格档'},{key:'brand',name:'品牌'},{key:'model',name:'手机型号'},{key:'score',name:'评分分析'}];
   const ab=$('#ls-anchor-bar');ab.style.display='flex';
   ab.innerHTML=dims7.map(d=>'<button class="ls-anchor-btn" data-anchor="'+d.key+'">▶ '+d.name+'</button>').join('');
   ab.querySelectorAll('button').forEach(b=>{b.onclick=()=>{const el=document.getElementById('ls-dim-'+b.dataset.anchor);if(el){const tb=el.querySelector('.ls-table-block');if(tb)tb.style.display='block';const arrow=el.querySelector('.ls-dim-arrow');if(arrow)arrow.textContent='▼';}if(el)el.scrollIntoView({behavior:'smooth',block:'start'});};});
   const hBar=(id,agg)=>{const s=agg.slice().sort((a,b)=>b.count-a.count).reverse();const c=chart(id);if(c)c.setOption({color:['#3b82f6','#93c5fd'],tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},legend:{data:['订单数','高价课单数'],bottom:0,textStyle:{color:'#64748b'}},grid:{left:8,right:16,top:24,bottom:8,containLabel:true},xAxis:{type:'value',axisLine:{lineStyle:{color:'#e2e8f0'}},axisLabel:{color:'#94a3b8'}},yAxis:{type:'category',data:s.map(r=>r.value),axisLine:{lineStyle:{color:'#e2e8f0'}},axisLabel:{color:'#64748b',fontSize:11}},series:[{name:'订单数',type:'bar',data:s.map(r=>r.count),itemStyle:{color:'#3b82f6',borderRadius:[0,4,4,0]}},{name:'高价课单数',type:'bar',data:s.map(r=>r.highN),itemStyle:{color:'#93c5fd',borderRadius:[0,4,4,0]}}]});};
-  const dims=[{key:'city',name:'城市等级'},{key:'cityName',name:'具体城市'},{key:'gender',name:'性别'},{key:'age',name:'年龄档'},{key:'price',name:'价格档'},{key:'brand',name:'品牌'},{key:'model',name:'手机型号'}];
+  const dims=[{key:'city',name:'城市等级'},{key:'province',name:'省份'},{key:'cityName',name:'具体城市'},{key:'gender',name:'性别'},{key:'age',name:'年龄档'},{key:'price',name:'价格档'},{key:'brand',name:'品牌'},{key:'model',name:'手机型号'}];
   const hasScoring=cur&&cur.scoring&&cur.scoring.periodRows&&cur.scoring.periodRows.length;
   const dimCount=dims.length+(hasScoring?1:0);
   let html='<div class="ls-sheet"><div class="ls-sheet-header"><h2>'+esc(lsLink)+'</h2><span class="ls-sheet-tag">链路 · '+dimCount+' 个维度（点击标题展开数据表）</span></div><div class="ls-sheet-body">';
@@ -3674,6 +3674,7 @@ const T4_FIELDS = {
   period: ['期数时间','订单时间','期数','购买日期'],
   city: ['城市等级','城市分级'],
   cityName: ['城市','所在城市','城市名称','城市名','具体城市','收货城市','下单城市'],
+  province: ['省份','所在省份','省','地区','地域','收货省份','下单省份'],
   gender: ['性别-微信号','性别'],
   age: ['年龄'],
   price: ['手机价格'],
@@ -3767,6 +3768,7 @@ function processTab4() {
       const gender = genderRaw.includes('男')?'男性':genderRaw.includes('女')?'女性':'未知';
       const city = c.city!==undefined ? String(r[headers[c.city]]||'未知').trim() : '未知';
       const cityName = c.cityName!==undefined ? String(r[headers[c.cityName]]||'未知').trim() : '未知';
+      const province = c.province!==undefined ? String(r[headers[c.province]]||'未知').trim() : '未知';
       const period = t4FormatPeriod(c.period!==undefined ? String(r[headers[c.period]]||'').trim() : '');
       // 指标：根据可用列选择
       const valid = hasValidCol ? (String(r[headers[c.valid]]||'').trim()==='是') : true;
@@ -3777,11 +3779,12 @@ function processTab4() {
       const allN = hasAllCol ? (parseFloat(r[headers[c.allOrders]])||0) : 1;
       const scoreN = c.scoreOrders!==undefined ? (parseFloat(r[headers[c.scoreOrders]])||0) : (c.friendStatus!==undefined ? (['曾添加','系统-已添加','人工-已添加'].includes(String(r[headers[c.friendStatus]]||'').trim()) ? 1 : 0) : 0);
       const totalOut = c.totalOutput!==undefined ? (parseFloat(r[headers[c.totalOutput]])||0) : 0;
-      return { link, age:ageG, priceBand:pBand, brand, model, gender, city, cityName, period, valid, highAmt, hasHigh, highN, effN, allN, scoreN, totalOut };
+      return { link, age:ageG, priceBand:pBand, brand, model, gender, city, cityName, province, period, valid, highAmt, hasHigh, highN, effN, allN, scoreN, totalOut };
     });
     // 维度定义
     const dimensions=[
       {key:'city',name:'城市等级',order:T4_CITY_ORDER,getField:r=>r.city},
+      {key:'province',name:'省份',order:null,getField:r=>r.province},
       {key:'cityName',name:'具体城市',order:null,getField:r=>r.cityName},
       {key:'gender',name:'性别',order:T4_GENDER_ORDER,getField:r=>r.gender},
       {key:'age',name:'年龄档',order:T4_AGE_ORDER,getField:r=>r.age},
@@ -3921,7 +3924,7 @@ function t4BuildExcel(d) {
     model:['期','手机型号','订单数','有效订单数','订单占比','高价课订单数','高价课金额','高价课转化率','单订单产值'],
   };
   const scoreHeaders = ['期','评分状态','订单数','订单占比','高价课金额','单订单产值'];
-  const dimOrder = ['city','cityName','gender','age','price','brand','model'];
+  const dimOrder = ['city','province','cityName','gender','age','price','brand','model'];
   T4_LINK_ORDER.forEach(link => {
     const lr = d.linkResults[link];
     let a=[];
@@ -3964,7 +3967,7 @@ function t4BuildExcel(d) {
     ['口径说明'],[''],
     ['1. 数据源：'+d.srcFile+'（'+d.detailCount+' 条订单，'+d.periods.length+' 期）。'],
     ['2. 链路映射：83676427→PF+小程序问答；83676438+87101601→H5问答+首页；83676778+85489979→小程序问答(含首页)；85489984→H5分流；87101605→PF+AI落地页。'],
-    ['3. 每个链路一个 sheet，包含7个画像维度（城市等级/具体城市/性别/年龄档/价格档/品牌/手机型号）。'],
+    ['3. 每个链路一个 sheet，包含8个画像维度（城市等级/省份/具体城市/性别/年龄档/价格档/品牌/手机型号）。'],
     ['4. 品牌已统一中文（HUAWEI→华为、iPhone→苹果等），vivo/OPPO保留原文。'],
     ['5. 性别取"性别-微信号"字段。'],
     ['6. 手机价格分档：<500元 / 500-999元 / 1000-1999元 / 2000-2999元 / 3000-3999元 / 4000-4999元 / 5000-5999元 / 6000-6999元 / 7000元及以上 / 未知。'],
