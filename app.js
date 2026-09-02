@@ -1106,8 +1106,8 @@ function lsFilterDetail(dimData,filter,search){
 }
 function lsAggregate(rows){
   const g={};let total=0;
-  rows.forEach(r=>{const v=r.value;if(!g[v])g[v]={count:0,valid:0,highN:0,highAmt:0};g[v].count+=r.count||0;g[v].valid+=r.valid||0;g[v].highN+=r.highN||0;g[v].highAmt+=r.highAmt||0;total+=r.count||0;});
-  return Object.keys(g).map(v=>({value:v,count:g[v].count,valid:g[v].valid,share:total?g[v].count/total:0,highN:g[v].highN,highAmt:g[v].highAmt,highConv:g[v].count?g[v].highN/g[v].count:0,orderOutput:g[v].valid?g[v].highAmt/g[v].valid:0}));
+  rows.forEach(r=>{const v=r.value;if(!g[v])g[v]={count:0,valid:0,highN:0,highAmt:0,score:undefined,grade:undefined,quadrant:undefined,strategy:undefined};g[v].count+=r.count||0;g[v].valid+=r.valid||0;g[v].highN+=r.highN||0;g[v].highAmt+=r.highAmt||0;if(r.score!==undefined)g[v].score=r.score;if(r.grade)g[v].grade=r.grade;if(r.quadrant)g[v].quadrant=r.quadrant;if(r.strategy)g[v].strategy=r.strategy;total+=r.count||0;});
+  return Object.keys(g).map(v=>({value:v,count:g[v].count,valid:g[v].valid,share:total?g[v].count/total:0,highN:g[v].highN,highAmt:g[v].highAmt,highConv:g[v].count?g[v].highN/g[v].count:0,orderOutput:g[v].valid?g[v].highAmt/g[v].valid:0,score:g[v].score,grade:g[v].grade,quadrant:g[v].quadrant,strategy:g[v].strategy}));
 }
 function lsPeriodTable(dimKey,dimName,detail,agg){
   const onlyTotal=lsPeriodFilter==='__total__';
@@ -1122,18 +1122,31 @@ function lsPeriodTable(dimKey,dimName,detail,agg){
   cols.forEach(c=>{const s=['count','highConv','orderOutput'].includes(c.key);const active=st&&st.key===c.key;h+='<th'+(s?' onclick="lsToggleSort(\''+dimKey+'\',\''+c.key+'\')"':'')+'>'+c.label+(active?(st.dir>0?' ↑':' ↓'):'')+'</th>';});
   h+='</tr></thead><tbody>';
   if(!onlyTotal) rows.forEach(r=>{h+='<tr><td><b>'+esc(r.period)+'</b></td><td>'+esc(r.value)+'</td><td>'+fmtN(r.count)+'</td><td>'+fmtN(r.valid)+'</td><td>'+fmtP((r.share||0)*100)+'</td><td>'+fmtN(r.highN)+'</td><td>'+fmtM(r.highAmt)+'</td><td>'+fmtP((r.highConv||0)*100)+'</td><td>'+(r.orderOutput?fmtM2(r.orderOutput):'—')+'</td></tr>';});
-  totals.forEach(t=>{h+='<tr class="ls-total-row"><td>合计</td><td>'+esc(t.value)+'</td><td>'+fmtN(t.count)+'</td><td>'+fmtN(t.valid)+'</td><td>'+fmtP(t.share*100)+'</td><td>'+fmtN(t.highN)+'</td><td>'+fmtM(t.highAmt)+'</td><td>'+fmtP(t.highConv*100)+'</td><td>'+(t.orderOutput?fmtM2(t.orderOutput):'—')+'</td></tr>';});
+  const isGeoDim = ['city','province','cityName'].includes(dimKey);
+  totals.forEach(t=>{
+    let valHtml = esc(t.value);
+    if (isGeoDim && t.score !== undefined) {
+      const gc = t.grade==='S'?'#dc2626':t.grade==='A'?'#16a34a':t.grade==='B'?'#f59e0b':'#94a3b8';
+      valHtml += ' <span style="color:'+gc+';font-weight:700;font-size:11px">['+t.grade+' '+t.score+'分]</span> <span style="color:#94a3b8;font-size:10px">'+t.quadrant+'</span>';
+    }
+    h+='<tr class="ls-total-row"><td>合计</td><td>'+valHtml+'</td><td>'+fmtN(t.count)+'</td><td>'+fmtN(t.valid)+'</td><td>'+fmtP(t.share*100)+'</td><td>'+fmtN(t.highN)+'</td><td>'+fmtM(t.highAmt)+'</td><td>'+fmtP(t.highConv*100)+'</td><td>'+(t.orderOutput?fmtM2(t.orderOutput):'—')+'</td></tr>';
+    if (isGeoDim && t.strategy) {
+      h+='tr><td colspan="2"></td><td colspan="7" style="font-size:11px;color:#92400e;background:#fefce8;padding:4px 10px">💡 '+t.strategy+'</td></tr>';
+    }
+  });
   return h+'</tbody></table></div>';
 }
 function lsExportCurrent(){
   if(!SYNC.score)return;const lr=SYNC.score.linkResults[lsLink];if(!lr)return;
   const wb=XLSX.utils.book_new();
-  [{key:'city',name:'城市等级'},{key:'gender',name:'性别'},{key:'age',name:'年龄档'},{key:'price',name:'价格档'},{key:'brand',name:'品牌'},{key:'model',name:'手机型号'}].forEach(dim=>{
+  [{key:'city',name:'城市等级'},{key:'province',name:'省份'},{key:'cityName',name:'具体城市'},{key:'gender',name:'性别'},{key:'age',name:'年龄档'},{key:'price',name:'价格档'},{key:'brand',name:'品牌'},{key:'model',name:'手机型号'}].forEach(dim=>{
     const detail=lsFilterDetail(lr.dimensions[dim.key],lsPeriodFilter,lsSearchText),agg=lsAggregate(detail);
-    const a=[['期',dim.name,'订单数','有效订单数','订单占比','高价课订单数','高价课金额','高价课转化率','单订单产值']];
+    const isGeo = ['city','province','cityName'].includes(dim.key);
+    const headers = isGeo ? ['期',dim.name,'综合评分','评级','价值矩阵','订单数','有效订单数','订单占比','高价课订单数','高价课金额','高价课转化率','单订单产值','优化建议'] : ['期',dim.name,'订单数','有效订单数','订单占比','高价课订单数','高价课金额','高价课转化率','单订单产值'];
+    const a=[headers];
     const onlyTotal=lsPeriodFilter==='__total__';
-    if(!onlyTotal)detail.forEach(r=>a.push([r.period,r.value,r.count,r.valid,r.share,r.highN,r.highAmt,r.highConv,r.orderOutput]));
-    agg.forEach(r=>a.push(['合计',r.value,r.count,r.valid,r.share,r.highN,r.highAmt,r.highConv,r.orderOutput]));
+    if(!onlyTotal)detail.forEach(r=>a.push(isGeo?[r.period,r.value,'','','',r.count,r.valid,r.share,r.highN,r.highAmt,r.highConv,r.orderOutput,'']:[r.period,r.value,r.count,r.valid,r.share,r.highN,r.highAmt,r.highConv,r.orderOutput]));
+    agg.forEach(r=>a.push(isGeo?['合计',r.value,r.score,r.grade,r.quadrant,r.count,r.valid,r.share,r.highN,r.highAmt,r.highConv,r.orderOutput,r.strategy]:['合计',r.value,r.count,r.valid,r.share,r.highN,r.highAmt,r.highConv,r.orderOutput]));
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(a),dim.name);
   });
   if(lr.scoring){
@@ -1180,6 +1193,15 @@ function renderLinkScore(){
   let html='<div class="ls-sheet"><div class="ls-sheet-header"><h2>'+esc(lsLink)+'</h2><span class="ls-sheet-tag">链路 · '+dimCount+' 个维度（点击标题展开数据表）</span></div><div class="ls-sheet-body">';
   dims.forEach(dim=>{
     const det=lsFilterDetail(cur.dimensions[dim.key],lsPeriodFilter,lsSearchText),agg=lsAggregate(det);
+    // 地域维度：从原始dim.rows合并综合评分、评级、价值矩阵、优化建议
+    if (['city','province','cityName'].includes(dim.key) && cur.dimensions[dim.key] && cur.dimensions[dim.key].rows) {
+      const scoreMap = {};
+      cur.dimensions[dim.key].rows.forEach(r => { scoreMap[r.value] = r; });
+      agg.forEach(a => {
+        const src = scoreMap[a.value];
+        if (src) { a.score=src.score; a.grade=src.grade; a.quadrant=src.quadrant; a.strategy=src.strategy; }
+      });
+    }
     html+='<div class="ls-dim" id="ls-dim-'+dim.key+'">';
     html+='<div class="ls-dim-title" style="cursor:pointer;user-select:none" onclick="lsToggleTable(\''+dim.key+'\')"><span class="ls-dim-arrow" style="display:inline-block;width:16px">▶</span> '+dim.name+'<span class="ls-dim-badge">'+agg.length+' 个分类</span></div>';
     if(agg.length)html+='<div class="ls-chart" id="ls-chart-'+dim.key+'" style="height:'+Math.max(200,agg.length*22)+'px"></div>';
@@ -3650,6 +3672,40 @@ const T4_LINK_MAP = {
 };
 const T4_LINK_ORDER = ['PF+小程序问答','H5问答+首页','小程序问答(含首页)','H5分流','PF+AI落地页'];
 const T4_SCORING_LINKS = ['PF+小程序问答','PF+AI落地页'];
+
+// 城市综合评分模型（单订单产值40% + 高价转化率25% + 有效订单率15% + 订单规模20%）
+function t4CityScore(rows) {
+  if (!rows || rows.length === 0) return [];
+  const maxOrderOutput = Math.max(...rows.map(r => r.orderOutput || 0), 1);
+  const maxHighConv = Math.max(...rows.map(r => r.highConv || 0), 0.001);
+  const maxValidRate = Math.max(...rows.map(r => r.count > 0 ? (r.valid || 0) / r.count : 0), 0.001);
+  const maxOrders = Math.max(...rows.map(r => r.count || 0), 1);
+  return rows.map(r => {
+    const orderOutputScore = (r.orderOutput || 0) / maxOrderOutput * 100;
+    const highConvScore = (r.highConv || 0) / maxHighConv * 100;
+    const validRate = r.count > 0 ? (r.valid || 0) / r.count : 0;
+    const validRateScore = validRate / maxValidRate * 100;
+    const orderScaleScore = Math.log10((r.count || 0) + 1) / Math.log10(maxOrders + 1) * 100;
+    const score = orderOutputScore * 0.4 + highConvScore * 0.25 + validRateScore * 0.15 + orderScaleScore * 0.2;
+    let grade = 'C';
+    if (score >= 90) grade = 'S';
+    else if (score >= 75) grade = 'A';
+    else if (score >= 60) grade = 'B';
+    // 城市价值矩阵（纵轴：单订单产值，横轴：订单数）
+    const avgOrderOutput = rows.reduce((s, x) => s + (x.orderOutput || 0), 0) / rows.length;
+    const avgOrders = rows.reduce((s, x) => s + (x.count || 0), 0) / rows.length;
+    let quadrant = '瘦狗城市';
+    let strategy = '缩减或暂停投放，拉黑排除';
+    if ((r.orderOutput || 0) >= avgOrderOutput && (r.count || 0) >= avgOrders) {
+      quadrant = '明星城市'; strategy = '加大预算倾斜，拓宽相似人群包（Lookalike）';
+    } else if ((r.orderOutput || 0) >= avgOrderOutput && (r.count || 0) < avgOrders) {
+      quadrant = '金牛城市'; strategy = '测试放量，提高出价或放开定向限制，挖掘增量空间';
+    } else if ((r.orderOutput || 0) < avgOrderOutput && (r.count || 0) >= avgOrders) {
+      quadrant = '问题城市'; strategy = '优化落地页与转化漏斗，控制出价，精细化过滤低意向人群';
+    }
+    return { ...r, score: Math.round(score * 10) / 10, grade, quadrant, strategy };
+  });
+}
 const T4_BRAND_MAP = {
   'HUAWEI':'华为','Huawei':'华为','Honor':'荣耀','iPhone':'苹果','Xiaomi':'小米',
   'Redmi':'红米','Samsung':'三星','Sony':'索尼','realme':'真我','Meizu':'魅族',
@@ -3849,19 +3905,24 @@ function processTab4() {
             });
           });
         });
+        let dimRows = vals.map(v => ({
+          value: dim.key==='model'?v.split('|||')[1]:v,
+          brand: dim.key==='model'?v.split('|||')[0]:null,
+          count: groups[v].count,
+          valid: groups[v].valid,
+          share: safeDiv(groups[v].count, totalOrders),
+          highN: groups[v].highN,
+          highAmt: groups[v].highAmt,
+          highConv: safeDiv(groups[v].highN, groups[v].count),
+          orderOutput: safeDiv(groups[v].highAmt, groups[v].valid),
+        }));
+        // 为地域维度（城市等级/省份/具体城市）计算综合评分、评级、价值矩阵、优化建议
+        if (['city','province','cityName'].includes(dim.key)) {
+          dimRows = t4CityScore(dimRows);
+        }
         linkResults[link].dimensions[dim.key] = {
           name: dim.name,
-          rows: vals.map(v => ({
-            value: dim.key==='model'?v.split('|||')[1]:v,
-            brand: dim.key==='model'?v.split('|||')[0]:null,
-            count: groups[v].count,
-            valid: groups[v].valid,
-            share: safeDiv(groups[v].count, totalOrders),
-            highN: groups[v].highN,
-            highAmt: groups[v].highAmt,
-            highConv: safeDiv(groups[v].highN, groups[v].count),
-            orderOutput: safeDiv(groups[v].highAmt, groups[v].valid),
-          })),
+          rows: dimRows,
           periodDetail,
         };
       });
@@ -3915,8 +3976,11 @@ function processTab4() {
 
 function t4BuildExcel(d) {
   const wb = XLSX.utils.book_new();
+  const geoHeaders = ['期','维度值','综合评分','评级','价值矩阵','订单数','有效订单数','订单占比','高价课订单数','高价课金额','高价课转化率','单订单产值','优化建议'];
   const dimHeaders = {
-    city:['期','城市等级','订单数','有效订单数','订单占比','高价课订单数','高价课金额','高价课转化率','单订单产值'],
+    city:geoHeaders,
+    province:geoHeaders,
+    cityName:geoHeaders,
     gender:['期','性别','订单数','有效订单数','订单占比','高价课订单数','高价课金额','高价课转化率','单订单产值'],
     age:['期','年龄档','订单数','有效订单数','订单占比','高价课订单数','高价课金额','高价课转化率','单订单产值'],
     price:['期','价格档','订单数','有效订单数','订单占比','高价课订单数','高价课金额','高价课转化率','单订单产值'],
@@ -3937,10 +4001,18 @@ function t4BuildExcel(d) {
       a.push(['▶ '+dim.name]);
       a.push(dimHeaders[dk]);
       (dim.periodDetail||[]).forEach(r => {
-        a.push([r.period, r.value, r.count, r.valid, r.share, r.highN, r.highAmt, r.highConv, r.orderOutput]);
+        if (['city','province','cityName'].includes(dk)) {
+          a.push([r.period, r.value, '', '', '', r.count, r.valid, r.share, r.highN, r.highAmt, r.highConv, r.orderOutput, '']);
+        } else {
+          a.push([r.period, r.value, r.count, r.valid, r.share, r.highN, r.highAmt, r.highConv, r.orderOutput]);
+        }
       });
       (dim.rows||[]).forEach(r => {
-        a.push(['合计', r.value, r.count, r.valid, r.share, r.highN, r.highAmt, r.highConv, r.orderOutput]);
+        if (['city','province','cityName'].includes(dk)) {
+          a.push(['合计', r.value, r.score||'', r.grade||'', r.quadrant||'', r.count, r.valid, r.share, r.highN, r.highAmt, r.highConv, r.orderOutput, r.strategy||'']);
+        } else {
+          a.push(['合计', r.value, r.count, r.valid, r.share, r.highN, r.highAmt, r.highConv, r.orderOutput]);
+        }
       });
       a.push(['']);
     });
@@ -4016,7 +4088,16 @@ function t4ShowLink(link) {
       t.innerHTML+='<tr><td>'+r.period+'</td><td>'+dim.name+'</td><td>'+(r.value||'')+'</td><td>'+fmtInt(r.count)+'</td><td>'+fmtInt(r.valid)+'</td><td>'+fmtPct(r.share)+'</td><td>'+fmtInt(r.highN)+'</td><td>'+fmtDec2(r.highAmt)+'</td><td>'+fmtPct(r.highConv)+'</td><td>'+fmtDec2(r.orderOutput)+'</td></tr>';
     });
     (dim.rows||[]).forEach(r=>{
-      t.innerHTML+='<tr style="font-weight:bold;background:#f1f5f9"><td>合计</td><td>'+dim.name+'</td><td>'+(r.value||'')+'</td><td>'+fmtInt(r.count)+'</td><td>'+fmtInt(r.valid)+'</td><td>'+fmtPct(r.share)+'</td><td>'+fmtInt(r.highN)+'</td><td>'+fmtDec2(r.highAmt)+'</td><td>'+fmtPct(r.highConv)+'</td><td>'+fmtDec2(r.orderOutput)+'</td></tr>';
+      const isGeo = ['city','province','cityName'].includes(dk);
+      let scoreHtml = '';
+      if (isGeo && r.score !== undefined) {
+        const gradeColor = r.grade==='S'?'#dc2626':r.grade==='A'?'#16a34a':r.grade==='B'?'#f59e0b':'#94a3b8';
+        scoreHtml = ' <span style="color:'+gradeColor+';font-weight:bold">['+r.grade+'级 '+r.score+'分]</span> <span style="color:#64748b;font-size:11px">'+r.quadrant+'</span>';
+      }
+      t.innerHTML+='<tr style="font-weight:bold;background:#f1f5f9"><td>合计</td><td>'+dim.name+'</td><td>'+(r.value||'')+scoreHtml+'</td><td>'+fmtInt(r.count)+'</td><td>'+fmtInt(r.valid)+'</td><td>'+fmtPct(r.share)+'</td><td>'+fmtInt(r.highN)+'</td><td>'+fmtDec2(r.highAmt)+'</td><td>'+fmtPct(r.highConv)+'</td><td>'+fmtDec2(r.orderOutput)+'</td></tr>';
+      if (isGeo && r.strategy) {
+        t.innerHTML+='<tr style="background:#fefce8"><td colspan="2"></td><td colspan="8" style="font-size:11px;color:#92400e;padding:4px 8px">💡 优化建议：'+r.strategy+'</td></tr>';
+      }
     });
   });
   if (lr.scoring) {
