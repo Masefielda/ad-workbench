@@ -5609,6 +5609,8 @@ async function processTab10(){
     const scoreConv={};
     // 账户×画像
     const accProfile={};
+    // 账户×期数（每期每账户：评分分数→产值 + 画像）
+    const accPeriodMap={};
 
     function addP(map,key,score,highAmount,hasHigh){
       if(!key||key===''||key==='未知')return;
@@ -5696,6 +5698,25 @@ async function processTab10(){
         if(score>=7)p.highCount++;
         if(isRepeat)p.repeatCount++;
         if(hasHigh)p.highOrder++;
+      }
+      // 账户×期数聚合（每期每账户）
+      const apKey=finalAccId+'\u0001'+(period||'未知期');
+      if(!accPeriodMap[apKey])accPeriodMap[apKey]={accId:finalAccId,accName:accName||finalAccId,period:period||'未知期',orders:0,scoreSum:0,highOrder:0,highAmount:0,profileMatchCount:0,scoreConv:{},profile:{gender:{},age:{},city:{},cityLevel:{},brand:{},model:{},priceTier:{}}};
+      const ap=accPeriodMap[apKey];
+      ap.orders++;ap.scoreSum+=score;
+      if(hasHigh){ap.highOrder++;ap.highAmount+=highAmount;}
+      if(!ap.scoreConv[score])ap.scoreConv[score]={orders:0,highOrder:0,highAmount:0};
+      ap.scoreConv[score].orders++;ap.scoreConv[score].highAmount+=highAmount;
+      if(hasHigh)ap.scoreConv[score].highOrder++;
+      if(profile){
+        ap.profileMatchCount++;
+        addP(ap.profile.gender,profile.gender,score,highAmount,hasHigh);
+        addP(ap.profile.age,profile.age,score,highAmount,hasHigh);
+        addP(ap.profile.city,profile.city,score,highAmount,hasHigh);
+        addP(ap.profile.cityLevel,profile.cityLevel,score,highAmount,hasHigh);
+        addP(ap.profile.brand,profile.brand,score,highAmount,hasHigh);
+        addP(ap.profile.model,profile.model,score,highAmount,hasHigh);
+        addP(ap.profile.priceTier,profile.priceTier,score,highAmount,hasHigh);
       }
       // 评分分层
       const tier=score<=3?'low':(score<=6?'mid':'high');
@@ -5798,6 +5819,27 @@ async function processTab10(){
     };
     const hasProfile=profile.gender.length>0||profile.age.length>0||profile.city.length>0||profile.brand.length>0||profile.priceTier.length>0;
 
+    // 每期每账户结果
+    const accPeriods=Object.values(accPeriodMap).map(ap=>({
+      accId:ap.accId,accName:ap.accName,period:ap.period,
+      orders:ap.orders,avgScore:ap.orders>0?ap.scoreSum/ap.orders:0,
+      highOrder:ap.highOrder,highAmount:ap.highAmount,
+      convRate:ap.orders>0?ap.highOrder/ap.orders:0,
+      avgOutput:ap.orders>0?ap.highAmount/ap.orders:0,
+      scoreConv:Object.entries(ap.scoreConv).map(([score,v])=>({
+        score:parseInt(score),orders:v.orders,highOrder:v.highOrder,highAmount:v.highAmount,
+        convRate:v.orders>0?v.highOrder/v.orders:0,
+        avgOutput:v.orders>0?v.highAmount/v.orders:0
+      })).sort((a,b)=>a.score-b.score),
+      profileMatchCount:ap.profileMatchCount,
+      profile:{
+        gender:sortP(ap.profile.gender),age:sortP(ap.profile.age),
+        city:sortP(ap.profile.city),cityLevel:sortP(ap.profile.cityLevel),
+        brand:sortP(ap.profile.brand),model:sortP(ap.profile.model),
+        priceTier:sortP(ap.profile.priceTier)
+      }
+    })).sort((a,b)=>String(a.accId).localeCompare(String(b.accId))||String(a.period).localeCompare(String(b.period)));
+
     const result={
       totalOrders,matchedCount,matchRate:totalOrders>0?matchedCount/totalOrders:0,
       avgScore:totalOrders>0?totalScore/totalOrders:0,
@@ -5808,6 +5850,7 @@ async function processTab10(){
       overallConvRate:totalOrders>0?totalHighOrder/totalOrders:0,
       overallAvgOutput:totalOrders>0?totalHighAmount/totalOrders:0,
       accounts,conditions,periods,tiers,scoreConv:scoreConvArr,
+      accPeriods,
       repeat:{count:repeatCount,avgScore:repeatCount>0?repeatScore/repeatCount:0,highRatio:repeatCount>0?repeatHigh/repeatCount:0},
       nonRepeat:{count:nonRepeatCount,avgScore:nonRepeatCount>0?nonRepeatScore/nonRepeatCount:0,highRatio:nonRepeatCount>0?nonRepeatHigh/nonRepeatCount:0},
       scoreDist,profile,highProfile:highP,lowProfile:lowP,hasProfile
@@ -5939,6 +5982,46 @@ function t10BuildExcel(d){
     });
     if(cmp.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(cmp),'高低分对比');
   }
+  // ===== 每期每账户分析 =====
+  if(d.accPeriods&&d.accPeriods.length){
+    // Sheet: 账户×期数总览
+    const apOv=[];
+    apOv.push(['每期每账户分析：账户 × 期数 总览']);
+    apOv.push(['说明：每个广告账户在每一期的评分质量与成交产值']);
+    apOv.push(['账户ID','账户名称','期数','订单量','平均分','高价课数','高价课金额','高价转化率','人均产值']);
+    d.accPeriods.forEach(ap=>{
+      apOv.push([ap.accId,ap.accName,ap.period,ap.orders,ap.avgScore.toFixed(2),ap.highOrder,ap.highAmount>0?ap.highAmount:'',(ap.convRate*100).toFixed(2)+'%',ap.avgOutput>0?'¥'+ap.avgOutput.toFixed(0):'-']);
+    });
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(apOv),'账户×期数总览');
+
+    // Sheet: 评分×产值明细（每期每账户，评分1-10分→订单/转化/产值）
+    const sc=[];
+    sc.push(['每期每账户：评分分数 对应 产值明细']);
+    sc.push(['说明：同一账户同一期内，1-10分各自承载的订单数与高价课产值，验证评分是否与产出正相关']);
+    sc.push(['账户ID','账户名称','期数','评分','订单数','高价课转化数','高价课金额','转化率','人均产值']);
+    d.accPeriods.forEach(ap=>{
+      (ap.scoreConv||[]).forEach(s=>{
+        sc.push([ap.accId,ap.accName,ap.period,s.score+'分',s.orders,s.highOrder,s.highAmount>0?s.highAmount:'',(s.convRate*100).toFixed(2)+'%',s.avgOutput>0?'¥'+s.avgOutput.toFixed(0):'-']);
+      });
+    });
+    if(sc.length>3)XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(sc),'评分×产值明细');
+
+    // Sheet: 画像×期数明细（每期每账户画像分布）
+    const pf=[];
+    pf.push(['每期每账户：人群画像明细']);
+    pf.push(['说明：同一账户同一期内的人群画像分布（性别/年龄/城市/手机品牌/手机价格/手机型号）']);
+    pf.push(['账户ID','账户名称','期数','画像维度','维度值','订单量','占比(该期匹配样本)','平均分','转化率','人均产值']);
+    d.accPeriods.forEach(ap=>{
+      const matchCnt=ap.profileMatchCount||1;
+      const dims=[['性别',ap.profile.gender],['年龄',ap.profile.age],['城市',ap.profile.city],['城市等级',ap.profile.cityLevel],['手机品牌',ap.profile.brand],['手机价格',ap.profile.priceTier],['手机型号',ap.profile.model]];
+      dims.forEach(([name,data])=>{
+        (data||[]).forEach(x=>{
+          pf.push([ap.accId,ap.accName,ap.period,name,x.key,x.orders,(x.orders/matchCnt*100).toFixed(1)+'%',x.avgScore.toFixed(2),(x.convRate*100).toFixed(1)+'%',x.avgOutput>0?'¥'+x.avgOutput.toFixed(0):'-']);
+        });
+      });
+    });
+    if(pf.length>3)XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(pf),'画像×期数明细');
+  }
   return wb;
 }function t10GenFindings(d){
   const findings=[];
@@ -6048,6 +6131,62 @@ function t10Display(d){
       html+='<tr><td style="border:1px solid #e2e8f0;padding:8px"><b>'+p.period+'</b></td><td style="border:1px solid #e2e8f0;padding:8px;text-align:center">'+p.orders+'</td><td style="border:1px solid #e2e8f0;padding:8px;text-align:center">'+p.avgScore.toFixed(2)+'</td><td style="border:1px solid #e2e8f0;padding:8px;text-align:center;color:#16a34a">'+(p.highRatio*100).toFixed(1)+'%</td><td style="border:1px solid #e2e8f0;padding:8px;text-align:center">'+(p.repeatRatio*100).toFixed(1)+'%</td></tr>';
     });
     html+='</tbody></table>';
+  }
+  // 每期每账户分析
+  if(d.accPeriods&&d.accPeriods.length){
+    html+='<h3 style="font-size:15px;font-weight:600;margin:20px 0 10px">五·五、每期每账户分析（评分→产值 + 画像）</h3>';
+    html+='<div style="margin-bottom:12px;padding:10px 14px;background:#eff6ff;border-radius:8px;border-left:4px solid #3b82f6;font-size:12px;color:#1e40af">每个广告账户在每一期：评分1-10分对应的高价课产值（验证评分与产出关系），以及该期人群画像（性别/年龄/城市/手机品牌/手机价格/手机型号）。点击展开查看明细。</div>';
+    const accGroups={};
+    d.accPeriods.forEach(ap=>{
+      if(!accGroups[ap.accId])accGroups[ap.accId]={accId:ap.accId,accName:ap.accName,periods:[]};
+      accGroups[ap.accId].periods.push(ap);
+    });
+    Object.values(accGroups).forEach(g=>{
+      const gOrders=g.periods.reduce((s,p)=>s+p.orders,0);
+      const gHigh=g.periods.reduce((s,p)=>s+p.highOrder,0);
+      const gHighAmt=g.periods.reduce((s,p)=>s+p.highAmount,0);
+      const gScore=g.periods.reduce((s,p)=>s+p.avgScore*p.orders,0);
+      html+='<details style="margin-bottom:12px;border:1px solid #dbeafe;border-radius:10px;background:#fff"><summary style="cursor:pointer;padding:12px 16px;font-weight:600;font-size:13px;color:#1e40af">📊 账户 '+g.accName+'（ID:'+g.accId+'，共'+gOrders+'单 · 高价课'+gHigh+'单 · 人均¥'+(gHighAmt>0?(gHighAmt/gOrders).toFixed(0):0)+'）</summary><div style="padding:4px 16px 16px">';
+      g.periods.forEach(ap=>{
+        const pScore=ap.orders>0?ap.avgScore.toFixed(2):'-';
+        html+='<details style="margin:10px 0;border:1px solid #e2e8f0;border-radius:8px"><summary style="cursor:pointer;padding:10px 14px;font-size:12.5px;font-weight:600;color:#334155">▶ 期数 '+ap.period+' · '+ap.orders+'单 · 均分'+pScore+' · 高价课'+ap.highOrder+'单 · 转化率'+(ap.convRate*100).toFixed(2)+'% · 人均产值'+(ap.avgOutput>0?'¥'+ap.avgOutput.toFixed(0):'-')+'</summary><div style="padding:12px 14px">';
+        // 评分→产值表
+        if(ap.scoreConv&&ap.scoreConv.length){
+          html+='<div style="font-size:12px;font-weight:600;color:#475569;margin:4px 0 6px">① 评分分数 → 产值</div>';
+          html+='<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:12px"><thead><tr style="background:#f1f5f9">';
+          ['评分','订单数','高价课转化数','转化率','高价课金额','人均产值'].forEach(h=>{html+='<th style="border:1px solid #e2e8f0;padding:5px 8px;text-align:left;color:#475569">'+h+'</th>';});
+          html+='</tr></thead><tbody>';
+          ap.scoreConv.forEach(s=>{
+            const crColor=s.convRate>=0.08?'#16a34a':s.convRate>=0.04?'#f59e0b':'#dc2626';
+            html+='<tr><td style="border:1px solid #e2e8f0;padding:5px 8px"><b>'+s.score+'分</b></td><td style="border:1px solid #e2e8f0;padding:5px 8px;text-align:center">'+s.orders+'</td><td style="border:1px solid #e2e8f0;padding:5px 8px;text-align:center">'+s.highOrder+'</td><td style="border:1px solid #e2e8f0;padding:5px 8px;text-align:center;color:'+crColor+';font-weight:600">'+(s.convRate*100).toFixed(2)+'%</td><td style="border:1px solid #e2e8f0;padding:5px 8px;text-align:center">'+(s.highAmount>0?'¥'+s.highAmount.toFixed(0):'-')+'</td><td style="border:1px solid #e2e8f0;padding:5px 8px;text-align:center">'+(s.avgOutput>0?'¥'+s.avgOutput.toFixed(0):'-')+'</td></tr>';
+          });
+          html+='</tbody></table>';
+        }
+        // 画像表
+        const matchCnt=ap.profileMatchCount||1;
+        const dims=[['性别',ap.profile.gender],['年龄',ap.profile.age],['城市',ap.profile.city],['城市等级',ap.profile.cityLevel],['手机品牌',ap.profile.brand],['手机价格',ap.profile.priceTier],['手机型号',ap.profile.model]];
+        const hasDim=dims.some(([_,data])=>(data||[]).length>0);
+        if(hasDim){
+          html+='<div style="font-size:12px;font-weight:600;color:#475569;margin:4px 0 6px">② 该期人群画像（匹配样本'+ap.profileMatchCount+'条）</div>';
+          dims.forEach(([name,data])=>{
+            if((data||[]).length){
+              html+='<div style="font-size:11px;font-weight:600;color:#64748b;margin:8px 0 4px">'+name+'</div>';
+              html+='<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px"><thead><tr style="background:#f8fafc">';
+              ['维度值','订单量','占比','平均分','转化率','人均产值'].forEach(h=>{html+='<th style="border:1px solid #e2e8f0;padding:4px 8px;text-align:left;color:#64748b">'+h+'</th>';});
+              html+='</tr></thead><tbody>';
+              data.forEach(x=>{
+                html+='<tr><td style="border:1px solid #e2e8f0;padding:4px 8px"><b>'+x.key+'</b></td><td style="border:1px solid #e2e8f0;padding:4px 8px;text-align:center">'+x.orders+'</td><td style="border:1px solid #e2e8f0;padding:4px 8px;text-align:center">'+(x.orders/matchCnt*100).toFixed(1)+'%</td><td style="border:1px solid #e2e8f0;padding:4px 8px;text-align:center">'+x.avgScore.toFixed(2)+'</td><td style="border:1px solid #e2e8f0;padding:4px 8px;text-align:center">'+(x.convRate*100).toFixed(1)+'%</td><td style="border:1px solid #e2e8f0;padding:4px 8px;text-align:center">'+(x.avgOutput>0?'¥'+x.avgOutput.toFixed(0):'-')+'</td></tr>';
+              });
+              html+='</tbody></table>';
+            }
+          });
+        }else{
+          html+='<div style="font-size:11px;color:#94a3b8;padding:4px 0 8px">该期暂无匹配的画像数据（订单明细中未找到对应订单号）</div>';
+        }
+        html+='</div></details>';
+      });
+      html+='</div></details>';
+    });
   }
   // 核心洞察
   html+='<h3 style="font-size:15px;font-weight:600;margin:20px 0 10px">六、核心洞察</h3>';
@@ -6176,7 +6315,7 @@ function renderAccountScore(){
   const d=SYNC.accountScore;
   if(!d){
     document.getElementById('as-empty').style.display='block';
-    ['as-overview-card','as-chart-card','as-repeat-card','as-condition-card','as-tier-card','as-period-card','as-finding-card','as-suggest-card','as-scoreconv-card','as-accprofile-card','as-profile-card','as-cmp-card'].forEach(id=>document.getElementById(id).style.display='none');
+    ['as-overview-card','as-chart-card','as-repeat-card','as-condition-card','as-tier-card','as-period-card','as-accperiod-card','as-finding-card','as-suggest-card','as-scoreconv-card','as-accprofile-card','as-profile-card','as-cmp-card'].forEach(id=>document.getElementById(id).style.display='none');
     document.getElementById('as-badge').textContent='待同步';
     return;
   }
@@ -6252,6 +6391,60 @@ function renderAccountScore(){
         {name:'高分率',type:'line',yAxisIndex:1,data:d.periods.map(p=>(p.highRatio*100).toFixed(1)),itemStyle:{color:'#f59e0b'},smooth:true}
       ]
     });
+  }
+  // 每期每账户分析
+  if(d.accPeriods&&d.accPeriods.length){
+    document.getElementById('as-accperiod-card').style.display='block';
+    const accGroups={};
+    d.accPeriods.forEach(ap=>{
+      if(!accGroups[ap.accId])accGroups[ap.accId]={accId:ap.accId,accName:ap.accName,periods:[]};
+      accGroups[ap.accId].periods.push(ap);
+    });
+    let aph='';
+    Object.values(accGroups).forEach(g=>{
+      const gOrders=g.periods.reduce((s,p)=>s+p.orders,0);
+      const gHigh=g.periods.reduce((s,p)=>s+p.highOrder,0);
+      const gHighAmt=g.periods.reduce((s,p)=>s+p.highAmount,0);
+      aph+='<details style="margin-bottom:14px;border:1px solid #dbeafe;border-radius:10px;background:#fff"><summary style="cursor:pointer;padding:12px 16px;font-weight:600;font-size:14px;color:#1e40af">📊 账户 '+g.accName+'（ID:'+g.accId+'，共'+gOrders+'单 · 高价课'+gHigh+'单 · 人均¥'+(gHighAmt>0?(gHighAmt/gOrders).toFixed(0):0)+'）</summary><div style="padding:4px 16px 16px">';
+      g.periods.forEach(ap=>{
+        const pScore=ap.orders>0?ap.avgScore.toFixed(2):'-';
+        aph+='<details style="margin:10px 0;border:1px solid #e2e8f0;border-radius:8px"><summary style="cursor:pointer;padding:10px 14px;font-size:13px;font-weight:600;color:#334155">▶ 期数 '+ap.period+' · '+ap.orders+'单 · 均分'+pScore+' · 高价课'+ap.highOrder+'单 · 转化率'+(ap.convRate*100).toFixed(2)+'% · 人均产值'+(ap.avgOutput>0?'¥'+ap.avgOutput.toFixed(0):'-')+'</summary><div style="padding:12px 14px">';
+        if(ap.scoreConv&&ap.scoreConv.length){
+          aph+='<div style="font-size:13px;font-weight:600;color:#475569;margin:4px 0 6px">① 评分分数 → 产值</div>';
+          aph+='<div class="table-wrap"><table class="data-table"><thead><tr>';
+          ['评分','订单数','高价课转化数','转化率','高价课金额','人均产值'].forEach(h=>{aph+='<th>'+h+'</th>';});
+          aph+='</tr></thead><tbody>';
+          ap.scoreConv.forEach(s=>{
+            const crColor=s.convRate>=0.08?'#16a34a':s.convRate>=0.04?'#f59e0b':'#dc2626';
+            aph+='<tr><td><b>'+s.score+'分</b></td><td style="text-align:center">'+s.orders+'</td><td style="text-align:center">'+s.highOrder+'</td><td style="text-align:center;color:'+crColor+';font-weight:600">'+(s.convRate*100).toFixed(2)+'%</td><td style="text-align:center">'+(s.highAmount>0?'¥'+s.highAmount.toFixed(0):'-')+'</td><td style="text-align:center">'+(s.avgOutput>0?'¥'+s.avgOutput.toFixed(0):'-')+'</td></tr>';
+          });
+          aph+='</tbody></table></div>';
+        }
+        const matchCnt=ap.profileMatchCount||1;
+        const dims=[['性别',ap.profile.gender],['年龄',ap.profile.age],['城市',ap.profile.city],['城市等级',ap.profile.cityLevel],['手机品牌',ap.profile.brand],['手机价格',ap.profile.priceTier],['手机型号',ap.profile.model]];
+        const hasDim=dims.some(([_,data])=>(data||[]).length>0);
+        if(hasDim){
+          aph+='<div style="font-size:13px;font-weight:600;color:#475569;margin:12px 0 6px">② 该期人群画像（匹配样本'+ap.profileMatchCount+'条）</div>';
+          dims.forEach(([name,data])=>{
+            if((data||[]).length){
+              aph+='<div style="font-size:12px;font-weight:600;color:#64748b;margin:8px 0 4px">'+name+'</div>';
+              aph+='<div class="table-wrap"><table class="data-table"><thead><tr>';
+              ['维度值','订单量','占比','平均分','转化率','人均产值'].forEach(h=>{aph+='<th>'+h+'</th>';});
+              aph+='</tr></thead><tbody>';
+              data.forEach(x=>{
+                aph+='<tr><td><b>'+x.key+'</b></td><td style="text-align:center">'+x.orders+'</td><td style="text-align:center">'+(x.orders/matchCnt*100).toFixed(1)+'%</td><td style="text-align:center">'+x.avgScore.toFixed(2)+'</td><td style="text-align:center">'+(x.convRate*100).toFixed(1)+'%</td><td style="text-align:center">'+(x.avgOutput>0?'¥'+x.avgOutput.toFixed(0):'-')+'</td></tr>';
+              });
+              aph+='</tbody></table></div>';
+            }
+          });
+        }else{
+          aph+='<div style="font-size:12px;color:#94a3b8;padding:8px 0">该期暂无匹配的画像数据（订单明细中未找到对应订单号）</div>';
+        }
+        aph+='</div></details>';
+      });
+      aph+='</div></details>';
+    });
+    document.getElementById('as-accperiod').innerHTML=aph;
   }
   // 核心洞察
   document.getElementById('as-finding-card').style.display='block';
