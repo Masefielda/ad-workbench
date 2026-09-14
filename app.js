@@ -6147,6 +6147,9 @@ function t10Display(d){
       const gHighAmt=g.periods.reduce((s,p)=>s+p.highAmount,0);
       const gScore=g.periods.reduce((s,p)=>s+p.avgScore*p.orders,0);
       html+='<details style="margin-bottom:12px;border:1px solid #dbeafe;border-radius:10px;background:#fff"><summary style="cursor:pointer;padding:12px 16px;font-weight:600;font-size:13px;color:#1e40af">📊 账户 '+g.accName+'（ID:'+g.accId+'，共'+gOrders+'单 · 高价课'+gHigh+'单 · 人均¥'+(gHighAmt>0?(gHighAmt/gOrders).toFixed(0):0)+'）</summary><div style="padding:4px 16px 16px">';
+
+      const pList=g.periods.map(p=>'<b style="color:#0369a1">'+p.period+'</b>').join('、');
+      html+='<div style="margin:10px 0 6px;padding:8px 12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;font-size:12px;color:#0c4a6e">📅 <b>分期（共'+g.periods.length+'期）：</b>'+pList+'</div>';
       g.periods.forEach(ap=>{
         const pScore=ap.orders>0?ap.avgScore.toFixed(2):'-';
         html+='<details style="margin:10px 0;border:1px solid #e2e8f0;border-radius:8px"><summary style="cursor:pointer;padding:10px 14px;font-size:12.5px;font-weight:600;color:#334155">▶ 期数 '+ap.period+' · '+ap.orders+'单 · 均分'+pScore+' · 高价课'+ap.highOrder+'单 · 转化率'+(ap.convRate*100).toFixed(2)+'% · 人均产值'+(ap.avgOutput>0?'¥'+ap.avgOutput.toFixed(0):'-')+'</summary><div style="padding:12px 14px">';
@@ -6406,6 +6409,9 @@ function renderAccountScore(){
       const gHigh=g.periods.reduce((s,p)=>s+p.highOrder,0);
       const gHighAmt=g.periods.reduce((s,p)=>s+p.highAmount,0);
       aph+='<details style="margin-bottom:14px;border:1px solid #dbeafe;border-radius:10px;background:#fff"><summary style="cursor:pointer;padding:12px 16px;font-weight:600;font-size:14px;color:#1e40af">📊 账户 '+g.accName+'（ID:'+g.accId+'，共'+gOrders+'单 · 高价课'+gHigh+'单 · 人均¥'+(gHighAmt>0?(gHighAmt/gOrders).toFixed(0):0)+'）</summary><div style="padding:4px 16px 16px">';
+
+      const pList=g.periods.map(p=>'<b style="color:#0369a1">'+p.period+'</b>').join('、');
+      aph+='<div style="margin:10px 0 6px;padding:8px 12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;font-size:13px;color:#0c4a6e">📅 <b>分期（共'+g.periods.length+'期）：</b>'+pList+'</div>';
       g.periods.forEach(ap=>{
         const pScore=ap.orders>0?ap.avgScore.toFixed(2):'-';
         aph+='<details style="margin:10px 0;border:1px solid #e2e8f0;border-radius:8px"><summary style="cursor:pointer;padding:10px 14px;font-size:13px;font-weight:600;color:#334155">▶ 期数 '+ap.period+' · '+ap.orders+'单 · 均分'+pScore+' · 高价课'+ap.highOrder+'单 · 转化率'+(ap.convRate*100).toFixed(2)+'% · 人均产值'+(ap.avgOutput>0?'¥'+ap.avgOutput.toFixed(0):'-')+'</summary><div style="padding:12px 14px">';
