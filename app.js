@@ -5931,6 +5931,14 @@ function t10BuildExcel(d){
       rows.push(['账户：'+acc.name+'（ID:'+acc.id+'）','画像匹配样本：'+matchCnt+'条']);
       if(matchCnt<20)rows.push(['⚠️ 样本偏少（'+matchCnt+'条），结论仅供参考']);
       rows.push([]);
+      // 该账户对应的期数（每期每账户）
+      const accPeriods=d.accPeriods?d.accPeriods.filter(ap=>ap.accId===acc.id):[];
+      if(accPeriods.length){
+        rows.push(['【期数】']);
+        rows.push(['期数','订单量','平均分','高价课转化数','转化率','人均产值']);
+        accPeriods.forEach(ap=>rows.push([ap.period,ap.orders,ap.avgScore.toFixed(2),ap.highOrder,(ap.convRate*100).toFixed(2)+'%',ap.avgOutput>0?'¥'+ap.avgOutput.toFixed(0):'-']));
+        rows.push([]);
+      }
       if(hasData){
         accDims.forEach(([name,data])=>{
           if(data.length){
