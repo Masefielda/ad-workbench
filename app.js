@@ -1181,7 +1181,7 @@ function renderLinkScore(){
   const si=$('#ls-search');si.value=lsSearchText;si.oninput=()=>{lsSearchText=si.value;renderLinkScore();};
   $('#ls-reset-btn').onclick=()=>{lsPeriodFilter='';lsSearchText='';lsSort={};renderLinkScore();};
   $('#ls-export-btn').onclick=lsExportCurrent;
-  $('#ls-spec-btn').onclick=()=>{showModal('口径说明','<div style="font-size:13px;line-height:1.8">1. 数据源：投放看板订单明细（Excel工具4同步）<br>2. 链路映射：83676427→PF+小程序问答；83676438+87101601→H5问答+首页；83676778+85489979→小程序问答(含首页)；85489984→H5分流；87101605→PF+AI落地页<br>3. 八大维度：城市等级/省份/具体城市/性别/年龄档/价格档/品牌/手机型号<br>4. 订单占比=该维度值订单数÷当期总订单数<br>5. 高价转化率=高价课订单数÷订单数<br>6. 单订单产值=高价课金额÷有效订单数<br>7. 评分推导：有评分=好友状态为曾添加/系统-已添加/人工-已添加；无评分=系统-未添加或空<br>8. 评分分析仅对PF+小程序问答、PF+AI落地页显示<br>9. 期数筛选：全部期数=平铺各期+合计；仅看合计=只显示合计行<br>10. 搜索：仅对品牌和手机型号维度生效</div>');};
+  $('#ls-spec-btn').onclick=()=>{showModal('口径说明','<div style="font-size:13px;line-height:1.8">1. 数据源：投放看板订单明细（Excel工具4同步）<br>2. 链路映射：83676427→PF+小程序问答；83676438+87101601→H5问答+首页；83676778+85489979→小程序问答(含首页)；85489984→H5分流；87101605→PF+AI落地页；未映射的账户按账户ID单独成组<br>3. 八大维度：城市等级/省份/具体城市/性别/年龄档/价格档/品牌/手机型号<br>4. 订单占比=该维度值订单数÷当期总订单数<br>5. 高价转化率=高价课订单数÷订单数<br>6. 单订单产值=高价课金额÷有效订单数<br>7. 评分推导：有评分=好友状态为曾添加/系统-已添加/人工-已添加；无评分=系统-未添加或空<br>8. 评分分析仅对PF+小程序问答、PF+AI落地页显示<br>9. 期数筛选：全部期数=平铺各期+合计；仅看合计=只显示合计行<br>10. 搜索：仅对品牌和手机型号维度生效</div>');};
   const dims7=[{key:'city',name:'城市等级'},{key:'province',name:'省份'},{key:'cityName',name:'具体城市'},{key:'gender',name:'性别'},{key:'age',name:'年龄档'},{key:'price',name:'价格档'},{key:'brand',name:'品牌'},{key:'model',name:'手机型号'},{key:'score',name:'评分分析'}];
   const ab=$('#ls-anchor-bar');ab.style.display='flex';
   ab.innerHTML=dims7.map(d=>'<button class="ls-anchor-btn" data-anchor="'+d.key+'">▶ '+d.name+'</button>').join('');
@@ -2969,13 +2969,13 @@ function setupUpload(zoneId, fileId, fileNameId, btnId, checkReady) {
   }
 }
 
-function readWorkbook(file, cb) {
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try { cb(XLSX.read(e.target.result, { type:'array' })); }
-    catch(err) { cb(null, err); }
-  };
-  reader.readAsArrayBuffer(file);
+async function readWorkbook(file, cb) {
+  try {
+    const buf = await file.arrayBuffer();
+    cb(XLSX.read(buf, { type:'array' }));
+  } catch(err) {
+    cb(null, err);
+  }
 }
 
 function getSheetData(wb) {
@@ -3788,16 +3788,18 @@ function processTab4() {
     if (err) { showStatus('t4','读取失败：'+err.message,'error'); document.getElementById('t4Btn').disabled=false; return; }
     try {
     showStatus('t4','正在解析数据...','active');
-    const { json: rows } = getSheetData(wb);
-    if (!rows.length) { showStatus('t4','数据为空','error'); document.getElementById('t4Btn').disabled=false; return; }
-    const headers = Object.keys(rows[0]);
+    const { ws } = getSheetData(wb);
+    const aoa = XLSX.utils.sheet_to_json(ws, { header:1, defval:null });
+    if (!aoa.length) { showStatus('t4','数据为空','error'); document.getElementById('t4Btn').disabled=false; return; }
+    const headers = (aoa[0]||[]).map(h=>String(h));
+    const rows = aoa.slice(1).filter(r => r.some(v => v!==null && v!==undefined));
     const cols = resolveCols(headers, T4_FIELDS);
     // 必需字段：accountId, period 至少要有
     if (cols.missing.find(m=>m.field==='accountId')) { showMissingCols('t4', cols.missing, headers); showStatus('t4','缺少广告账户ID列','error'); document.getElementById('t4Btn').disabled=false; return; }
     const c = cols.found;
     // 过滤汇总行
     const detail = rows.filter(r => {
-      const p = c.period!==undefined ? String(r[headers[c.period]]||'').trim() : '';
+      const p = c.period!==undefined ? String(r[c.period]||'').trim() : '';
       return (!c.period || (p && p !== '汇总数据' && p !== '合计' && p !== '总计'));
     });
     showStatus('t4','正在计算画像维度...','active');
@@ -3808,33 +3810,33 @@ function processTab4() {
     const hasEffCol = c.effOrders !== undefined;
     const hasAllCol = c.allOrders !== undefined;
     // 期数列表
-    const periods = c.period!==undefined ? [...new Set(detail.map(r=>t4FormatPeriod(String(r[headers[c.period]]||'').trim())).filter(p=>p&&p!=='汇总数据'&&p!=='合计'&&p!=='总计'))].sort() : [];
+    const periods = c.period!==undefined ? [...new Set(detail.map(r=>t4FormatPeriod(String(r[c.period]||'').trim())).filter(p=>p&&p!=='汇总数据'&&p!=='合计'&&p!=='总计'))].sort() : [];
     // 预处理：每行提取维度值 + 指标
     const processed = detail.map(r => {
-      const aid = String(r[headers[c.accountId]]||'').trim();
-      const link = T4_LINK_MAP[aid] || '其他';
-      const age = c.age!==undefined ? String(r[headers[c.age]]||'未知').trim() : '未知';
+      const aid = String(r[c.accountId]||'').trim();
+      const link = T4_LINK_MAP[aid] || (aid?('账户'+aid):'其他');
+      const age = c.age!==undefined ? String(r[c.age]||'未知').trim() : '未知';
       const ageG = t4AgeGroup(age);
-      const price = c.price!==undefined ? t4ParsePrice(r[headers[c.price]]) : null;
+      const price = c.price!==undefined ? t4ParsePrice(r[c.price]) : null;
       const pBand = t4PriceBand(price);
-      const brandRaw = c.brand!==undefined ? String(r[headers[c.brand]]||'').trim() : '';
+      const brandRaw = c.brand!==undefined ? String(r[c.brand]||'').trim() : '';
       const brand = T4_BRAND_MAP[brandRaw] || brandRaw;
-      const model = c.model!==undefined ? String(r[headers[c.model]]||'').trim() : '';
-      const genderRaw = c.gender!==undefined ? String(r[headers[c.gender]]||'未知').trim() : '未知';
+      const model = c.model!==undefined ? String(r[c.model]||'').trim() : '';
+      const genderRaw = c.gender!==undefined ? String(r[c.gender]||'未知').trim() : '未知';
       const gender = genderRaw.includes('男')?'男性':genderRaw.includes('女')?'女性':'未知';
-      const city = c.city!==undefined ? String(r[headers[c.city]]||'未知').trim() : '未知';
-      const cityName = c.cityName!==undefined ? String(r[headers[c.cityName]]||'未知').trim() : '未知';
-      const province = c.province!==undefined ? String(r[headers[c.province]]||'未知').trim() : '未知';
-      const period = t4FormatPeriod(c.period!==undefined ? String(r[headers[c.period]]||'').trim() : '');
+      const city = c.city!==undefined ? String(r[c.city]||'未知').trim() : '未知';
+      const cityName = c.cityName!==undefined ? String(r[c.cityName]||'未知').trim() : '未知';
+      const province = c.province!==undefined ? String(r[c.province]||'未知').trim() : '未知';
+      const period = t4FormatPeriod(c.period!==undefined ? String(r[c.period]||'').trim() : '');
       // 指标：根据可用列选择
-      const valid = hasValidCol ? (String(r[headers[c.valid]]||'').trim()==='是') : true;
-      const highAmt = hasHighAmtCol ? (parseFloat(r[headers[c.highAmt]])||0) : 0;
-      const hasHigh = hasHighAmtCol ? (highAmt > 0) : (hasHighNCol ? (parseFloat(r[headers[c.highN]])||0 > 0) : false);
-      const highN = hasHighNCol ? (parseFloat(r[headers[c.highN]])||0) : (hasHigh ? 1 : 0);
-      const effN = hasEffCol ? (parseFloat(r[headers[c.effOrders]])||0) : 1;
-      const allN = hasAllCol ? (parseFloat(r[headers[c.allOrders]])||0) : 1;
-      const scoreN = c.scoreOrders!==undefined ? (parseFloat(r[headers[c.scoreOrders]])||0) : (c.friendStatus!==undefined ? (['曾添加','系统-已添加','人工-已添加'].includes(String(r[headers[c.friendStatus]]||'').trim()) ? 1 : 0) : 0);
-      const totalOut = c.totalOutput!==undefined ? (parseFloat(r[headers[c.totalOutput]])||0) : 0;
+      const valid = hasValidCol ? (String(r[c.valid]||'').trim()==='是') : true;
+      const highAmt = hasHighAmtCol ? (parseFloat(r[c.highAmt])||0) : 0;
+      const hasHigh = hasHighAmtCol ? (highAmt > 0) : (hasHighNCol ? (parseFloat(r[c.highN])||0 > 0) : false);
+      const highN = hasHighNCol ? (parseFloat(r[c.highN])||0) : (hasHigh ? 1 : 0);
+      const effN = hasEffCol ? (parseFloat(r[c.effOrders])||0) : 1;
+      const allN = hasAllCol ? (parseFloat(r[c.allOrders])||0) : 1;
+      const scoreN = c.scoreOrders!==undefined ? (parseFloat(r[c.scoreOrders])||0) : (c.friendStatus!==undefined ? (['曾添加','系统-已添加','人工-已添加'].includes(String(r[c.friendStatus]||'').trim()) ? 1 : 0) : 0);
+      const totalOut = c.totalOutput!==undefined ? (parseFloat(r[c.totalOutput])||0) : 0;
       return { link, age:ageG, priceBand:pBand, brand, model, gender, city, cityName, province, period, valid, highAmt, hasHigh, highN, effN, allN, scoreN, totalOut };
     });
     // 维度定义
@@ -3849,7 +3851,10 @@ function processTab4() {
       {key:'model',name:'手机型号',order:null,getField:r=>r.brand+'|||'+r.model},
     ];
     const linkResults={};
-    T4_LINK_ORDER.forEach(link => {
+    const linkOrder=[];
+    T4_LINK_ORDER.forEach(l=>{linkOrder.push(l);});
+    processed.forEach(r=>{if(r.link&&!linkOrder.includes(r.link))linkOrder.push(r.link);});
+    linkOrder.forEach(link => {
       const linkRows = processed.filter(r => r.link===link);
       const totalOrders = linkRows.reduce((s,r)=>s+r.allN,0);
       const totalValid = linkRows.reduce((s,r)=>s+(r.valid?r.effN:0),0);
@@ -3962,12 +3967,12 @@ function processTab4() {
         }
       }
     });
-    t4Data = { linkResults, periods, srcFile: file.name, detailCount: processed.length, colsFound: c, missing: cols.missing };
+    t4Data = { linkResults, linkOrder, periods, srcFile: file.name, detailCount: processed.length, colsFound: c, missing: cols.missing };
     showStatus('t4','正在生成Excel...','active');
     t4Output = t4BuildExcel(t4Data);
     t4Display(t4Data);
     const syncOk = saveSync('score', t4Data);
-    showStatus('t4','完成！'+processed.length+' 行数据，'+T4_LINK_ORDER.length+' 链路'+(cols.missing.length?'，'+cols.missing.length+' 列未匹配':'')+(syncOk?'（已同步到分析模块）':'（同步失败：存储空间不足，请清除旧同步数据）'),'done');
+    showStatus('t4','完成！'+processed.length+' 行数据，'+linkOrder.length+' 链路'+(cols.missing.length?'，'+cols.missing.length+' 列未匹配':'')+(syncOk?'（已同步到分析模块）':'（同步失败：存储空间不足，请清除旧同步数据）'),'done');
     document.getElementById('t4Btn').disabled=false;
     } catch(e) { showStatus('t4','运行错误：'+e.message,'error'); console.error(e); document.getElementById('t4Btn').disabled=false; }
   });
@@ -3989,7 +3994,7 @@ function t4BuildExcel(d) {
   };
   const scoreHeaders = ['期','评分状态','订单数','订单占比','高价课金额','单订单产值'];
   const dimOrder = ['city','province','cityName','gender','age','price','brand','model'];
-  T4_LINK_ORDER.forEach(link => {
+  Object.keys(d.linkResults).forEach(link => {
     const lr = d.linkResults[link];
     let a=[];
     a.push([link+' · 链路画像与评分分析']);
@@ -4038,7 +4043,7 @@ function t4BuildExcel(d) {
   let n=[
     ['口径说明'],[''],
     ['1. 数据源：'+d.srcFile+'（'+d.detailCount+' 条订单，'+d.periods.length+' 期）。'],
-    ['2. 链路映射：83676427→PF+小程序问答；83676438+87101601→H5问答+首页；83676778+85489979→小程序问答(含首页)；85489984→H5分流；87101605→PF+AI落地页。'],
+    ['2. 链路映射：83676427→PF+小程序问答；83676438+87101601→H5问答+首页；83676778+85489979→小程序问答(含首页)；85489984→H5分流；87101605→PF+AI落地页；未映射的账户按账户ID单独成组展示。'],
     ['3. 每个链路一个 sheet，包含8个画像维度（城市等级/省份/具体城市/性别/年龄档/价格档/品牌/手机型号）。'],
     ['4. 品牌已统一中文（HUAWEI→华为、iPhone→苹果等），vivo/OPPO保留原文。'],
     ['5. 性别取"性别-微信号"字段。'],
@@ -4062,18 +4067,18 @@ function t4Display(d) {
   const totalValid=Object.values(d.linkResults).reduce((s,l)=>s+l.totalValid,0);
   const totalHigh=Object.values(d.linkResults).reduce((s,l)=>s+l.totalHigh,0);
   const totalHighAmt=Object.values(d.linkResults).reduce((s,l)=>s+l.totalHighAmt,0);
-  [{v:fmtInt(d.detailCount),l:'订单总数'},{v:fmtInt(totalValid),l:'有效订单'},{v:fmtInt(totalHigh),l:'高价课订单'},{v:'¥'+fmtDec2(totalHighAmt),l:'高价课金额'},{v:d.periods.length,l:'期数'},{v:T4_LINK_ORDER.length,l:'链路数'}].forEach(k=>{kpi.innerHTML+='<div class="ex-kpi-card"><div class="ex-val">'+k.v+'</div><div class="ex-lbl">'+k.l+'</div></div>';});
+  [{v:fmtInt(d.detailCount),l:'订单总数'},{v:fmtInt(totalValid),l:'有效订单'},{v:fmtInt(totalHigh),l:'高价课订单'},{v:'¥'+fmtDec2(totalHighAmt),l:'高价课金额'},{v:d.periods.length,l:'期数'},{v:Object.keys(d.linkResults).length,l:'链路数'}].forEach(k=>{kpi.innerHTML+='<div class="ex-kpi-card"><div class="ex-val">'+k.v+'</div><div class="ex-lbl">'+k.l+'</div></div>';});
   // 链路选择器
   let tabs=document.getElementById('t4PreviewTabs');
   tabs.innerHTML='';
-  T4_LINK_ORDER.forEach((l,i) => {
+  Object.keys(d.linkResults).forEach((l,i) => {
     let btn=document.createElement('button');
     btn.className='ex-tab-btn'+(i===0?' active':'');
     btn.textContent=l;
     btn.onclick=(e)=>{ document.querySelectorAll('#t4PreviewTabs .tab-btn').forEach(b=>b.classList.remove('active')); e.target.classList.add('active'); t4ShowLink(l); };
     tabs.appendChild(btn);
   });
-  t4ShowLink(T4_LINK_ORDER[0]);
+  t4ShowLink(Object.keys(d.linkResults)[0]);
 }
 
 function t4ShowLink(link) {
