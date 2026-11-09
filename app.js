@@ -3715,13 +3715,13 @@ const T4_AGE_EXCLUDE = [];
 const T4_AGE_MAP = { '51-55岁':'51-60岁','56-60岁':'51-60岁','61-65岁':'61-70岁','66-70岁':'61-70岁' };
 const T4_AGE_ORDER = ['45岁以下','46-50岁','51-60岁','61-70岁','70岁以上','未知'];
 const T4_PRICE_BINS = [
-  {label:'<500元',min:0,max:499.99},{label:'500-999元',min:500,max:999.99},
-  {label:'1000-1999元',min:1000,max:1999.99},{label:'2000-2999元',min:2000,max:2999.99},
-  {label:'3000-3999元',min:3000,max:3999.99},{label:'4000-4999元',min:4000,max:4999.99},
-  {label:'5000-5999元',min:5000,max:5999.99},{label:'6000-6999元',min:6000,max:6999.99},
-  {label:'7000元及以上',min:7000,max:Infinity},
+  {label:'1500元以下',min:0,max:1499.99},
+  {label:'1500-2500元',min:1500,max:2499.99},
+  {label:'2500-3500元',min:2500,max:3499.99},
+  {label:'3500-4500元',min:3500,max:4499.99},
+  {label:'4500元以上',min:4500,max:Infinity},
 ];
-const T4_PRICE_ORDER = ['<500元','500-999元','1000-1999元','2000-2999元','3000-3999元','4000-4999元','5000-5999元','6000-6999元','7000元及以上','未知'];
+const T4_PRICE_ORDER = ['1500元以下','1500-2500元','2500-3500元','3500-4500元','4500元以上','未知'];
 const T4_CITY_ORDER = ['一线城市','新一线城市','二线城市','三线城市','四线城市','五线城市','其他城市','其他','未知'];
 const T4_GENDER_ORDER = ['男性','女性','未知'];
 
@@ -4047,7 +4047,7 @@ function t4BuildExcel(d) {
     ['3. 每个链路一个 sheet，包含8个画像维度（城市等级/省份/具体城市/性别/年龄档/价格档/品牌/手机型号）。'],
     ['4. 品牌已统一中文（HUAWEI→华为、iPhone→苹果等），vivo/OPPO保留原文。'],
     ['5. 性别取"性别-微信号"字段。'],
-    ['6. 手机价格分档：<500元 / 500-999元 / 1000-1999元 / 2000-2999元 / 3000-3999元 / 4000-4999元 / 5000-5999元 / 6000-6999元 / 7000元及以上 / 未知。'],
+    ['6. 手机价格分档：1500元以下 / 1500-2500元 / 2500-3500元 / 3500-4500元 / 4500元以上 / 未知（边界值归上一档，如1500元计入1500-2500元）。'],
     ['7. 单订单产值 = 高价课金额合计 ÷ 有效订单数。'],
     ['8. 订单占比 = 该维度值订单数 ÷ 当期总订单数（含无效）。'],
     ['9. 评分分析：有评分=好友状态为曾添加/系统-已添加/人工-已添加；无评分=系统-未添加或空。仅 PF+小程序问答、PF+AI落地页 展示评分分析。'],
@@ -4075,7 +4075,7 @@ function t4Display(d) {
     let btn=document.createElement('button');
     btn.className='ex-tab-btn'+(i===0?' active':'');
     btn.textContent=l;
-    btn.onclick=(e)=>{ document.querySelectorAll('#t4PreviewTabs .tab-btn').forEach(b=>b.classList.remove('active')); e.target.classList.add('active'); t4ShowLink(l); };
+    btn.onclick=(e)=>{ document.querySelectorAll('#t4PreviewTabs .ex-tab-btn').forEach(b=>b.classList.remove('active')); e.target.classList.add('active'); t4ShowLink(l); };
     tabs.appendChild(btn);
   });
   t4ShowLink(Object.keys(d.linkResults)[0]);
@@ -4086,7 +4086,7 @@ function t4ShowLink(link) {
   let t=document.getElementById('t4Tbl');
   let hd=['期','维度','维度值','订单数','有效','占比','高价单数','高价金额','转化率','产值'];
   t.innerHTML='<tr>'+hd.map(h=>'<th>'+h+'</th>').join('')+'</tr>';
-  ['city','gender','age','price','brand','model'].forEach(dk=>{
+  ['province','cityName','city','gender','age','price','brand','model'].forEach(dk=>{
     const dim=lr.dimensions[dk]; if(!dim)return;
     t.innerHTML+='<tr style="font-weight:bold;color:var(--accent)"><td colspan="10">▶ '+dim.name+'</td></tr>';
     (dim.periodDetail||[]).forEach(r=>{
